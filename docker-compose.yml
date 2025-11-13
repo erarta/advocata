@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: advocata-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=advocata
+      - POSTGRES_PASSWORD=advocata_dev_password
+      - POSTGRES_DB=advocata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - advocata-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U advocata']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: advocata-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - advocata-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: advocata-backend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=advocata
+      - DB_PASSWORD=advocata_dev_password
+      - DB_DATABASE=advocata
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+      - JWT_EXPIRATION=7d
+      - CORS_ORIGIN=http://localhost:4000,http://localhost:4001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend:/app
+      - /app/node_modules
+    networks:
+      - advocata-network
+    command: npm run start:dev
+
+  # Admin Panel
+  admin:
+    build:
+      context: ./apps/admin
+      dockerfile: Dockerfile
+      target: deps
+    container_name: advocata-admin
+    restart: unless-stopped
+    ports:
+      - '4000:3000'
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXTAUTH_URL=http://localhost:4000
+      - NEXTAUTH_SECRET=dev-nextauth-secret-change-in-production
+    volumes:
+      - ./apps/admin:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - advocata-network
+    command: npm run dev
+
+  # Landing Page
+  landing:
+    build:
+      context: ./apps/landing
+      dockerfile: Dockerfile
+      target: deps
+    container_name: advocata-landing
+    restart: unless-stopped
+    ports:
+      - '4001:3000'
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./apps/landing:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - advocata-network
+    command: npm run dev
+
+  # Nginx Reverse Proxy (optional, for production-like setup)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: advocata-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - '80:80'
+  #     - '443:443'
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/certs:/etc/nginx/certs:ro
+  #   depends_on:
+  #     - backend
+  #     - admin
+  #     - landing
+  #   networks:
+  #     - advocata-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  advocata-network:
+    driver: bridge
