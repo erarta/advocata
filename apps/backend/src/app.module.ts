@@ -2,14 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
 
 // Bounded Context Modules
 import { IdentityModule } from './modules/identity/identity.module';
 import { LawyerModule } from './modules/lawyer/lawyer.module';
+import { DocumentModule } from './modules/document/document.module';
 // import { ConsultationModule } from './modules/consultation/consultation.module';
 // import { PaymentModule } from './modules/payment/payment.module';
 // import { NotificationModule } from './modules/notification/notification.module';
-// import { DocumentModule } from './modules/document/document.module';
 
 @Module({
   imports: [
@@ -35,13 +36,22 @@ import { LawyerModule } from './modules/lawyer/lawyer.module';
       logging: process.env.NODE_ENV === 'development',
     }),
 
+    // Redis & Job Queue
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        password: process.env.REDIS_PASSWORD,
+      },
+    }),
+
     // Bounded Context Modules
     IdentityModule,
     LawyerModule,
+    DocumentModule,
     // ConsultationModule,
     // PaymentModule,
     // NotificationModule,
-    // DocumentModule,
   ],
   controllers: [],
   providers: [],
