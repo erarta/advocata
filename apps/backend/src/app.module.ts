@@ -5,7 +5,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 
 // Bounded Context Modules
 import { IdentityModule } from './modules/identity/identity.module';
-// import { LawyerModule } from './modules/lawyer/lawyer.module';
+import { LawyerModule } from './modules/lawyer/lawyer.module';
 // import { ConsultationModule } from './modules/consultation/consultation.module';
 // import { PaymentModule } from './modules/payment/payment.module';
 // import { NotificationModule } from './modules/notification/notification.module';
@@ -37,7 +37,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 
     // Bounded Context Modules
     IdentityModule,
-    // LawyerModule,
+    LawyerModule,
     // ConsultationModule,
     // PaymentModule,
     // NotificationModule,
