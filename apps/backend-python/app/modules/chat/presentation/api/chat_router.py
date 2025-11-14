@@ -7,9 +7,7 @@ FastAPI роутер для управления беседами с AI асси
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.infrastructure.database import get_db
 from app.modules.identity.presentation.dependencies.auth_deps import get_current_user
 from app.modules.identity.application.dtos.user_dto import UserDTO
 
@@ -47,6 +45,11 @@ from app.modules.chat.infrastructure.services.openai_service import OpenAIServic
 from app.modules.chat.infrastructure.services.rag_service import RAGServiceImpl
 
 # Presentation Layer imports
+from app.modules.chat.presentation.dependencies import (
+    OpenAIServiceDep,
+    RAGServiceDep,
+    ConversationRepositoryDep,
+)
 from app.modules.chat.presentation.schemas.requests import (
     StartConversationRequest,
     SendMessageRequest,
@@ -140,7 +143,7 @@ def _to_conversation_list_item_response(
 async def start_conversation(
     request: StartConversationRequest,
     current_user: Annotated[UserDTO, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    repository: ConversationRepositoryDep,
 ) -> ConversationResponse:
     """
     Начать новую беседу.
@@ -148,7 +151,7 @@ async def start_conversation(
     Args:
         request: Данные для начала беседы
         current_user: Текущий пользователь
-        db: Database session
+        repository: Conversation repository (injected)
 
     Returns:
         ConversationResponse
@@ -156,8 +159,7 @@ async def start_conversation(
     Raises:
         HTTPException: 400 если ошибка создания
     """
-    # Создаем repository и handler
-    repository = ConversationRepositoryImpl(db)
+    # Создаем handler
     handler = StartConversationHandler(repository)
 
     # Создаем команду
@@ -203,7 +205,9 @@ async def send_message(
     conversation_id: str,
     request: SendMessageRequest,
     current_user: Annotated[UserDTO, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    repository: ConversationRepositoryDep,
+    ai_service: OpenAIServiceDep,
+    rag_service: RAGServiceDep,
 ) -> ConversationResponse:
     """
     Отправить сообщение в беседу.
@@ -212,7 +216,9 @@ async def send_message(
         conversation_id: ID беседы
         request: Данные сообщения
         current_user: Текущий пользователь
-        db: Database session
+        repository: Conversation repository (injected)
+        ai_service: OpenAI service (injected)
+        rag_service: RAG service (injected)
 
     Returns:
         ConversationResponse
@@ -220,11 +226,6 @@ async def send_message(
     Raises:
         HTTPException: 400/403/404 при ошибках
     """
-    # Создаем repository и services
-    repository = ConversationRepositoryImpl(db)
-    ai_service = OpenAIService()
-    rag_service = RAGServiceImpl(db)
-
     # Создаем handler
     handler = SendMessageHandler(repository, ai_service, rag_service)
 
@@ -271,7 +272,7 @@ async def send_message(
 async def get_conversation(
     conversation_id: str,
     current_user: Annotated[UserDTO, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    repository: ConversationRepositoryDep,
     include_messages: bool = Query(True, description="Загружать ли сообщения"),
 ) -> ConversationResponse:
     """
@@ -280,7 +281,7 @@ async def get_conversation(
     Args:
         conversation_id: ID беседы
         current_user: Текущий пользователь
-        db: Database session
+        repository: Conversation repository (injected)
         include_messages: Загружать ли сообщения
 
     Returns:
@@ -289,8 +290,7 @@ async def get_conversation(
     Raises:
         HTTPException: 403/404 при ошибках
     """
-    # Создаем repository и handler
-    repository = ConversationRepositoryImpl(db)
+    # Создаем handler
     handler = GetConversationByIdHandler(repository)
 
     # Создаем query
@@ -341,7 +341,7 @@ async def get_conversation(
 )
 async def get_conversations(
     current_user: Annotated[UserDTO, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    repository: ConversationRepositoryDep,
     status_filter: str = Query(None, alias="status", description="Фильтр по статусу"),
     limit: int = Query(50, ge=1, le=100, description="Количество результатов"),
     offset: int = Query(0, ge=0, description="Смещение для пагинации"),
@@ -351,7 +351,7 @@ async def get_conversations(
 
     Args:
         current_user: Текущий пользователь
-        db: Database session
+        repository: Conversation repository (injected)
         status_filter: Фильтр по статусу
         limit: Количество результатов
         offset: Смещение
@@ -362,8 +362,7 @@ async def get_conversations(
     Raises:
         HTTPException: 400 при ошибках валидации
     """
-    # Создаем repository и handler
-    repository = ConversationRepositoryImpl(db)
+    # Создаем handler
     handler = GetConversationsByUserHandler(repository)
 
     # Создаем query
@@ -411,22 +410,19 @@ async def get_conversations(
 )
 async def get_token_usage(
     current_user: Annotated[UserDTO, Depends(get_current_user)],
-    db: Annotated[AsyncSession, Depends(get_db)],
+    repository: ConversationRepositoryDep,
 ) -> TokenUsageResponse:
     """
     Получить статистику токенов.
 
     Args:
         current_user: Текущий пользователь
-        db: Database session
+        repository: Conversation repository (injected)
 
     Returns:
         TokenUsageResponse
     """
     from uuid import UUID
-
-    # Создаем repository
-    repository = ConversationRepositoryImpl(db)
 
     # Получаем статистику
     user_id_uuid = UUID(current_user.id)

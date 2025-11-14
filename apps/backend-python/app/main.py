@@ -8,7 +8,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -134,17 +134,41 @@ async def root() -> dict:
 from app.modules.identity.presentation.api.auth_router import router as auth_router
 from app.modules.lawyer.presentation.api.lawyer_router import router as lawyer_router
 from app.modules.document.presentation.api.document_router import router as document_router
-
-# TODO: Подключить остальные модули
-# from app.modules.chat.presentation.api.chat_router import router as chat_router
+from app.modules.chat.presentation import router as chat_router
+from app.modules.chat.presentation import websocket_endpoint
 
 # Регистрация роутеров
 app.include_router(auth_router, prefix=f"{settings.api_v1_prefix}")
 app.include_router(lawyer_router, prefix=f"{settings.api_v1_prefix}")
 app.include_router(document_router, prefix=f"{settings.api_v1_prefix}")
+app.include_router(chat_router, prefix=f"{settings.api_v1_prefix}")
 
-# TODO: Добавить остальные роутеры
-# app.include_router(chat_router, prefix=f"{settings.api_v1_prefix}/chat")
+
+# WebSocket endpoint для real-time чата
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.infrastructure.database import get_db
+
+
+@app.websocket("/ws/chat/{conversation_id}")
+async def chat_websocket(
+    websocket: WebSocket,
+    conversation_id: str,
+    user_id: str = Query(..., description="ID пользователя"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    WebSocket endpoint для real-time чата с AI ассистентом.
+
+    Args:
+        websocket: WebSocket соединение
+        conversation_id: UUID беседы
+        user_id: UUID пользователя (для авторизации)
+        db: Database session
+
+    Example:
+        ws://localhost:8000/ws/chat/550e8400-e29b-41d4-a716-446655440000?user_id=123e4567-e89b-12d3-a456-426614174000
+    """
+    await websocket_endpoint(websocket, conversation_id, user_id, db)
 
 
 if __name__ == "__main__":
