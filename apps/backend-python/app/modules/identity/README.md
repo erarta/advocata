@@ -228,7 +228,64 @@ TWILIO_AUTH_TOKEN=...
 - [API Reference](../../docs/api/auth.md)
 - [Security Best Practices](../../docs/security.md)
 
+## 🗄️ База данных
+
+### Миграции
+
+Первая миграция создает таблицу `users`:
+
+```bash
+# Применить миграцию
+alembic upgrade head
+
+# Откатить миграцию
+alembic downgrade -1
+
+# Посмотреть историю
+alembic history --verbose
+```
+
+### Схема таблицы users
+
+```sql
+CREATE TABLE users (
+    -- Primary Key
+    id VARCHAR(36) PRIMARY KEY,
+
+    -- Identifiers
+    phone VARCHAR(20) UNIQUE,
+    email VARCHAR(255) UNIQUE,
+
+    -- Profile
+    full_name VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'CLIENT',
+
+    -- Status
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    phone_verified BOOLEAN NOT NULL DEFAULT false,
+    email_verified BOOLEAN NOT NULL DEFAULT false,
+
+    -- OTP Verification
+    otp_code VARCHAR(6),
+    otp_expires_at TIMESTAMPTZ,
+    otp_attempts INTEGER NOT NULL DEFAULT 0,
+
+    -- Logging
+    last_login_at TIMESTAMPTZ,
+
+    -- Timestamps
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Indexes for query optimization
+CREATE INDEX idx_users_role_active ON users(role, is_active);
+CREATE INDEX idx_users_created_at ON users(created_at);
+```
+
 ---
 
-**Версия:** 0.1.0
-**Последнее обновление:** 2025-11-14
+**Версия:** 1.0.0
+**Последнее обновление:** 2024-11-14
+**Статус:** ✅ Полностью реализован (Domain + Application + Infrastructure + Presentation)

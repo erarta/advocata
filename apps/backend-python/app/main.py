@@ -130,16 +130,21 @@ async def root() -> dict:
     }
 
 
-# TODO: Подключить роутеры модулей
-# from app.modules.identity.presentation.api.auth_router import router as auth_router
+# Подключение роутеров модулей
+from app.modules.identity.presentation.api.auth_router import router as auth_router
+
+# TODO: Подключить остальные модули
 # from app.modules.lawyer.presentation.api.lawyer_router import router as lawyer_router
 # from app.modules.document.presentation.api.document_router import router as document_router
 # from app.modules.chat.presentation.api.chat_router import router as chat_router
-#
-# app.include_router(auth_router, prefix=f"{settings.api_v1_prefix}/auth", tags=["Auth"])
-# app.include_router(lawyer_router, prefix=f"{settings.api_v1_prefix}/lawyers", tags=["Lawyers"])
-# app.include_router(document_router, prefix=f"{settings.api_v1_prefix}/documents", tags=["Documents"])
-# app.include_router(chat_router, prefix=f"{settings.api_v1_prefix}/chat", tags=["Chat"])
+
+# Регистрация роутеров
+app.include_router(auth_router, prefix=f"{settings.api_v1_prefix}")
+
+# TODO: Добавить остальные роутеры
+# app.include_router(lawyer_router, prefix=f"{settings.api_v1_prefix}/lawyers")
+# app.include_router(document_router, prefix=f"{settings.api_v1_prefix}/documents")
+# app.include_router(chat_router, prefix=f"{settings.api_v1_prefix}/chat")
 
 
 if __name__ == "__main__":

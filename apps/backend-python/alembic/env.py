@@ -23,8 +23,9 @@ from app.config import settings
 from app.core.infrastructure.database import Base
 
 # Импортируем все модели для автогенерации миграций
+from app.modules.identity.infrastructure.persistence.models.user_model import UserModel
+
 # TODO: Раскомментировать когда модули будут созданы
-# from app.modules.identity.infrastructure.persistence.models.user_model import UserModel
 # from app.modules.lawyer.infrastructure.persistence.models.lawyer_model import LawyerModel
 # from app.modules.document.infrastructure.persistence.models.document_model import DocumentModel
 # from app.modules.document.infrastructure.persistence.models.chunk_model import ChunkModel
