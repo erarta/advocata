@@ -65,6 +65,7 @@ app = FastAPI(
     * 👨‍⚖️ **Управление юристами** - Регистрация, поиск, верификация
     * 📄 **Документы** - Загрузка и обработка юридических документов
     * 💼 **Консультации** - Бронирование, управление и оценка консультаций
+    * 💳 **Платежи и Подписки** - Платежная система с ЮКасса, подписки
     * 🤖 **AI Чат-бот** - RAG система для ответов на вопросы
 
     ## Архитектура:
@@ -138,6 +139,7 @@ from app.modules.document.presentation.api.document_router import router as docu
 from app.modules.chat.presentation import router as chat_router
 from app.modules.chat.presentation import websocket_endpoint
 from app.modules.consultation.presentation import router as consultation_router
+from app.modules.payment.presentation import payment_router, subscription_router
 
 # Регистрация роутеров
 app.include_router(auth_router, prefix=f"{settings.api_v1_prefix}")
@@ -145,6 +147,8 @@ app.include_router(lawyer_router, prefix=f"{settings.api_v1_prefix}")
 app.include_router(document_router, prefix=f"{settings.api_v1_prefix}")
 app.include_router(chat_router, prefix=f"{settings.api_v1_prefix}")
 app.include_router(consultation_router, prefix=f"{settings.api_v1_prefix}")
+app.include_router(payment_router, prefix=f"{settings.api_v1_prefix}")
+app.include_router(subscription_router, prefix=f"{settings.api_v1_prefix}")
 
 
 # WebSocket endpoint для real-time чата
