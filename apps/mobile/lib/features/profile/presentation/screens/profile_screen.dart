@@ -129,15 +129,40 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                 const SizedBox(height: 24),
 
+                // Quick Actions Section
+                _buildSectionTitle('Быстрые действия'),
+                const SizedBox(height: 8),
+                _buildMenuCard([
+                  ProfileMenuItem(
+                    icon: Icons.location_on_outlined,
+                    title: 'Мои адреса',
+                    subtitle: 'Сохраненные места',
+                    onTap: () => context.push('/profile/addresses'),
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.contacts_outlined,
+                    title: 'Экстренные контакты',
+                    subtitle: 'Доверенные лица',
+                    onTap: () => context.push('/profile/emergency-contacts'),
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.card_giftcard_rounded,
+                    title: 'Пригласить друга',
+                    subtitle: 'Получите бонусы',
+                    onTap: () => context.push('/profile/referral'),
+                  ),
+                ]),
+
+                const SizedBox(height: 24),
+
                 // App Section
                 _buildSectionTitle('Приложение'),
                 const SizedBox(height: 8),
                 _buildMenuCard([
                   ProfileMenuItem(
-                    icon: Icons.language,
-                    title: 'Язык',
-                    subtitle: 'Русский',
-                    onTap: () => _handleLanguageChange(context),
+                    icon: Icons.settings_outlined,
+                    title: 'Настройки',
+                    onTap: () => context.push('/profile/settings'),
                   ),
                   ProfileMenuItem(
                     icon: Icons.support_agent,

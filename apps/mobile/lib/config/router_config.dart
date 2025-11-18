@@ -18,6 +18,13 @@ import '../features/support/presentation/screens/support_chat_screen.dart';
 import '../features/support/presentation/screens/instructions_screen.dart';
 import '../features/support/presentation/screens/legal_information_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
+// Profile enhancement screens
+import '../features/profile/presentation/screens/saved_addresses_screen.dart';
+import '../features/profile/presentation/screens/add_address_screen.dart';
+import '../features/profile/presentation/screens/emergency_contacts_screen.dart';
+import '../features/profile/presentation/screens/add_emergency_contact_screen.dart';
+import '../features/profile/presentation/screens/referral_screen.dart';
+import '../features/profile/presentation/screens/app_settings_screen.dart';
 
 /// Router configuration provider
 final routerProvider = Provider<GoRouter>((ref) {
@@ -98,6 +105,56 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/profile',
         name: 'profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      // Saved addresses routes
+      GoRoute(
+        path: '/profile/addresses',
+        name: 'saved-addresses',
+        builder: (context, state) => const SavedAddressesScreen(),
+      ),
+      GoRoute(
+        path: '/profile/addresses/add',
+        name: 'add-address',
+        builder: (context, state) => const AddAddressScreen(),
+      ),
+      GoRoute(
+        path: '/profile/addresses/edit/:id',
+        name: 'edit-address',
+        builder: (context, state) {
+          final addressId = state.pathParameters['id']!;
+          return AddAddressScreen(addressId: addressId);
+        },
+      ),
+      // Emergency contacts routes
+      GoRoute(
+        path: '/profile/emergency-contacts',
+        name: 'emergency-contacts',
+        builder: (context, state) => const EmergencyContactsScreen(),
+      ),
+      GoRoute(
+        path: '/profile/emergency-contacts/add',
+        name: 'add-emergency-contact',
+        builder: (context, state) => const AddEmergencyContactScreen(),
+      ),
+      GoRoute(
+        path: '/profile/emergency-contacts/edit/:id',
+        name: 'edit-emergency-contact',
+        builder: (context, state) {
+          final contactId = state.pathParameters['id']!;
+          return AddEmergencyContactScreen(contactId: contactId);
+        },
+      ),
+      // Referral route
+      GoRoute(
+        path: '/profile/referral',
+        name: 'referral',
+        builder: (context, state) => const ReferralScreen(),
+      ),
+      // Settings route
+      GoRoute(
+        path: '/profile/settings',
+        name: 'app-settings',
+        builder: (context, state) => const AppSettingsScreen(),
       ),
 
       // Chat routes
