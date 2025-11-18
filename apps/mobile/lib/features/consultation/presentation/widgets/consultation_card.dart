@@ -8,12 +8,14 @@ class ConsultationCard extends StatelessWidget {
   final ConsultationEntity consultation;
   final VoidCallback? onTap;
   final VoidCallback? onRate;
+  final VoidCallback? onChat;
 
   const ConsultationCard({
     super.key,
     required this.consultation,
     this.onTap,
     this.onRate,
+    this.onChat,
   });
 
   @override
@@ -80,6 +82,26 @@ class ConsultationCard extends StatelessWidget {
                 label: 'Цена',
                 value: '${consultation.price.toStringAsFixed(0)} ${consultation.currency}',
               ),
+
+              // Chat button (for active and completed consultations)
+              if ((consultation.status == 'active' ||
+                   consultation.status == 'confirmed' ||
+                   consultation.status == 'completed') &&
+                  onChat != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onChat,
+                    icon: const Icon(Icons.chat, size: 18),
+                    label: const Text('Открыть чат'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
 
               // Rating (if completed and rated)
               if (consultation.rating != null) ...[

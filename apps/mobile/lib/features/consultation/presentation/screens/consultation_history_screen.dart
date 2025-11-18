@@ -121,6 +121,11 @@ class _ConsultationHistoryScreenState
           onRate: consultation.status == 'completed' && consultation.rating == null
               ? () => _showRatingDialog(consultation)
               : null,
+          onChat: (consultation.status == 'active' ||
+                  consultation.status == 'confirmed' ||
+                  consultation.status == 'completed')
+              ? () => _openChat(consultation)
+              : null,
         );
       },
     );
@@ -191,5 +196,17 @@ class _ConsultationHistoryScreenState
         _onRefresh();
       }
     });
+  }
+
+  /// Open chat for consultation
+  void _openChat(ConsultationEntity consultation) {
+    context.push(
+      '/consultations/${consultation.id}/chat',
+      extra: {
+        'consultationId': consultation.id,
+        'lawyerName': 'Юрист', // TODO: Get lawyer name from consultation
+        'lawyerAvatar': null, // TODO: Get lawyer avatar from consultation
+      },
+    );
   }
 }
