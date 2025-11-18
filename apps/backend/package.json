@@ -24,9 +24,13 @@
     "migration:run": "npm run typeorm -- migration:run -d typeorm.config.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d typeorm.config.ts",
     "migration:show": "npm run typeorm -- migration:show -d typeorm.config.ts",
+    "seed:users": "ts-node -r tsconfig-paths/register src/database/seeds/user.seed.ts",
+    "seed:lawyers": "ts-node -r tsconfig-paths/register src/database/seeds/lawyer.seed.ts",
     "seed:consultations": "ts-node -r tsconfig-paths/register src/database/seeds/consultation.seed.ts",
     "seed:messages": "ts-node -r tsconfig-paths/register src/database/seeds/message.seed.ts",
-    "seed:all": "npm run seed:consultations && npm run seed:messages"
+    "seed:payments": "ts-node -r tsconfig-paths/register src/database/seeds/payment.seed.ts",
+    "seed:documents": "ts-node -r tsconfig-paths/register src/database/seeds/document.seed.ts",
+    "seed:all": "npm run seed:users && npm run seed:lawyers && npm run seed:consultations && npm run seed:messages && npm run seed:payments && npm run seed:documents"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
