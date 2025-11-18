@@ -11,6 +11,7 @@ import '../features/lawyer/presentation/screens/lawyer_search_screen.dart';
 import '../features/lawyer/presentation/screens/lawyer_detail_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
+import '../features/emergency_call/presentation/screens/emergency_call_screen.dart';
 
 /// Router configuration provider
 final routerProvider = Provider<GoRouter>((ref) {
@@ -99,6 +100,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             lawyerAvatar: extra?['lawyerAvatar'],
           );
         },
+      ),
+
+      // Emergency call route
+      GoRoute(
+        path: '/emergency-call',
+        name: 'emergency-call',
+        builder: (context, state) => const EmergencyCallScreen(),
       ),
     ],
     errorBuilder: (context, state) => ErrorScreen(error: state.error),

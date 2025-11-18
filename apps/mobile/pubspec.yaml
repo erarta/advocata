@@ -51,8 +51,9 @@ dependencies:
   flutter_rating_bar: ^4.0.1
 
   # Maps
-  google_maps_flutter: ^2.5.0
+  yandex_mapkit: ^4.0.0
   geolocator: ^10.1.0
+  geocoding: ^3.0.0  # For address lookups
 
 dev_dependencies:
   flutter_test:
