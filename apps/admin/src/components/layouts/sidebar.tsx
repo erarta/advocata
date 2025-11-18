@@ -15,6 +15,8 @@ import {
   Activity,
   Scale,
   AlertCircle,
+  HelpCircle,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Badge } from '@/components/ui/badge';
@@ -66,8 +68,17 @@ const navigation = [
       { name: 'Settings', href: '/dashboard/financial/settings' },
     ],
   },
-  { name: 'Content', href: '/content', icon: FileText },
-  { name: 'Support', href: '/support', icon: HeadphonesIcon },
+  {
+    name: 'Content',
+    icon: FileText,
+    children: [
+      { name: 'Documents', href: '/content/documents' },
+      { name: 'Legal Info', href: '/content/legal-info' },
+      { name: 'FAQ', href: '/content/faq' },
+      { name: 'Support', href: '/content/support', badge: 12 },
+      { name: 'Onboarding', href: '/content/onboarding' },
+    ],
+  },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
