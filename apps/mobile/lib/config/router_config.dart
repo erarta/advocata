@@ -12,6 +12,10 @@ import '../features/lawyer/presentation/screens/lawyer_detail_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/chat/presentation/screens/chat_screen.dart';
 import '../features/emergency_call/presentation/screens/emergency_call_screen.dart';
+import '../features/support/presentation/screens/support_screen.dart';
+import '../features/support/presentation/screens/support_chat_screen.dart';
+import '../features/support/presentation/screens/instructions_screen.dart';
+import '../features/support/presentation/screens/legal_information_screen.dart';
 
 /// Router configuration provider
 final routerProvider = Provider<GoRouter>((ref) {
@@ -107,6 +111,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/emergency-call',
         name: 'emergency-call',
         builder: (context, state) => const EmergencyCallScreen(),
+      ),
+
+      // Support routes
+      GoRoute(
+        path: '/support',
+        name: 'support',
+        builder: (context, state) => const SupportScreen(),
+      ),
+      GoRoute(
+        path: '/support/chat',
+        name: 'support-chat',
+        builder: (context, state) => const SupportChatScreen(),
+      ),
+      GoRoute(
+        path: '/support/instructions',
+        name: 'support-instructions',
+        builder: (context, state) => const InstructionsScreen(),
+      ),
+      GoRoute(
+        path: '/support/legal',
+        name: 'support-legal',
+        builder: (context, state) => const LegalInformationScreen(),
       ),
     ],
     errorBuilder: (context, state) => ErrorScreen(error: state.error),

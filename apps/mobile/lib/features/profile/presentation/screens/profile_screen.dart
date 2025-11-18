@@ -140,9 +140,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onTap: () => _handleLanguageChange(context),
                   ),
                   ProfileMenuItem(
-                    icon: Icons.help_outline,
-                    title: 'Помощь и поддержка',
-                    onTap: () => context.push('/help'),
+                    icon: Icons.support_agent,
+                    title: 'Поддержка',
+                    onTap: () => context.push('/support'),
                   ),
                   ProfileMenuItem(
                     icon: Icons.description_outlined,

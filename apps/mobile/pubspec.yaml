@@ -55,6 +55,9 @@ dependencies:
   geolocator: ^10.1.0
   geocoding: ^3.0.0  # For address lookups
 
+  # URL Launcher
+  url_launcher: ^6.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
