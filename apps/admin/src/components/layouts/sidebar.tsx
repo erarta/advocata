@@ -12,6 +12,9 @@ import {
   FileText,
   Settings,
   HeadphonesIcon,
+  Activity,
+  Scale,
+  AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Badge } from '@/components/ui/badge';
@@ -28,7 +31,16 @@ const navigation = [
     ],
   },
   { name: 'Users', href: '/users', icon: Users },
-  { name: 'Consultations', href: '/consultations', icon: MessageSquare },
+  {
+    name: 'Consultations',
+    icon: MessageSquare,
+    children: [
+      { name: 'All Consultations', href: '/consultations' },
+      { name: 'Live Monitor', href: '/consultations/live' },
+      { name: 'Disputes', href: '/consultations/disputes' },
+      { name: 'Emergency Calls', href: '/consultations/emergency' },
+    ],
+  },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Financial', href: '/financial', icon: DollarSign },
   { name: 'Content', href: '/content', icon: FileText },

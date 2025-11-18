@@ -189,3 +189,103 @@ export interface EmergencyCall {
   responseTime?: number;
   isUrgent: boolean;
 }
+
+export interface ChatMessage {
+  id: string;
+  consultationId: string;
+  senderId: string;
+  senderName: string;
+  senderType: 'client' | 'lawyer';
+  content: string;
+  attachments?: {
+    id: string;
+    name: string;
+    url: string;
+    type: string;
+  }[];
+  sentAt: Date;
+  readAt?: Date;
+}
+
+export interface ConsultationStats {
+  total: number;
+  active: number;
+  waiting: number;
+  inProgress: number;
+  completedToday: number;
+  completed: number;
+  cancelled: number;
+  disputed: number;
+  averageDuration: number;
+  averageRating: number;
+  totalRevenue: number;
+}
+
+export interface DisputeStats {
+  open: number;
+  inReview: number;
+  resolvedToday: number;
+  averageResolutionTime: number;
+  totalDisputes: number;
+}
+
+export interface EmergencyCallStats {
+  active: number;
+  pending: number;
+  completedToday: number;
+  averageResponseTime: number;
+}
+
+export interface GetConsultationsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: ConsultationStatus;
+  type?: ConsultationType;
+  lawyerId?: string;
+  clientId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface GetDisputesParams {
+  page?: number;
+  limit?: number;
+  status?: DisputeStatus;
+  priority?: 'low' | 'medium' | 'high';
+  assignedTo?: string;
+  reason?: DisputeReason;
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface GetEmergencyCallsParams {
+  status?: 'pending' | 'assigned' | 'active' | 'completed' | 'cancelled';
+  urgent?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface UpdateConsultationDto {
+  status?: ConsultationStatus;
+  notes?: string;
+  scheduledStart?: Date;
+}
+
+export interface UpdateEmergencyCallDto {
+  status?: 'pending' | 'assigned' | 'active' | 'completed' | 'cancelled';
+  lawyerId?: string;
+  notes?: string;
+}
+
+export interface DateRange {
+  from: Date;
+  to: Date;
+}
