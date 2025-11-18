@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'supabase_config.dart';
+import '../features/onboarding/application/providers/onboarding_providers.dart';
 
 // Placeholder screens (to be implemented)
 import '../features/auth/presentation/screens/login_screen.dart';
@@ -16,6 +17,7 @@ import '../features/support/presentation/screens/support_screen.dart';
 import '../features/support/presentation/screens/support_chat_screen.dart';
 import '../features/support/presentation/screens/instructions_screen.dart';
 import '../features/support/presentation/screens/legal_information_screen.dart';
+import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 
 /// Router configuration provider
 final routerProvider = Provider<GoRouter>((ref) {
@@ -45,6 +47,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/splash',
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
+      ),
+
+      // Onboarding
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
 
       // Auth routes
@@ -159,6 +168,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
+    // Check onboarding status
+    final onboardingCompleted = OnboardingService.isOnboardingCompleted();
+
+    // If onboarding not completed, show onboarding
+    if (!onboardingCompleted) {
+      context.go('/onboarding');
+      return;
+    }
+
+    // Check authentication
     final isAuthenticated = SupabaseConfig.isAuthenticated;
 
     if (isAuthenticated) {
