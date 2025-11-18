@@ -17,6 +17,11 @@ import {
   AlertCircle,
   HelpCircle,
   BookOpen,
+  Bell,
+  Mail,
+  Flag,
+  Shield,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Badge } from '@/components/ui/badge';
@@ -79,7 +84,19 @@ const navigation = [
       { name: 'Onboarding', href: '/content/onboarding' },
     ],
   },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  {
+    name: 'Settings',
+    icon: Settings,
+    children: [
+      { name: 'Platform', href: '/settings/platform' },
+      { name: 'Notifications', href: '/settings/notifications' },
+      { name: 'Communication', href: '/settings/communication' },
+      { name: 'Features', href: '/settings/features' },
+      { name: 'Rate Limits', href: '/settings/rate-limits' },
+      { name: 'Permissions', href: '/settings/permissions' },
+      { name: 'Audit Log', href: '/settings/audit-log' },
+    ],
+  },
 ];
 
 export function Sidebar() {
