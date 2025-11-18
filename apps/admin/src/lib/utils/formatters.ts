@@ -77,3 +77,17 @@ export function formatFileSize(bytes: number): string {
 
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
+
+// Abbreviate large numbers (10K, 1.5M, etc.)
+export function abbreviateNumber(value: number): string {
+  if (value < 1000) {
+    return value.toString();
+  }
+
+  const suffixes = ['', 'K', 'M', 'B', 'T'];
+  const suffixNum = Math.floor(Math.log10(value) / 3);
+  const shortValue = (value / Math.pow(1000, suffixNum)).toFixed(1);
+
+  // Remove .0 if present
+  return shortValue.replace(/\.0$/, '') + suffixes[suffixNum];
+}
