@@ -9,6 +9,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { LawyerModule } from './modules/lawyer/lawyer.module';
 import { DocumentModule } from './modules/document/document.module';
 import { ConsultationModule } from './modules/consultation/consultation.module';
+import { MessageModule } from './modules/message/message.module';
 // import { PaymentModule } from './modules/payment/payment.module';
 // import { NotificationModule } from './modules/notification/notification.module';
 
@@ -50,6 +51,7 @@ import { ConsultationModule } from './modules/consultation/consultation.module';
     LawyerModule,
     DocumentModule,
     ConsultationModule,
+    MessageModule,
     // PaymentModule,
     // NotificationModule,
   ],
