@@ -30,7 +30,9 @@
     "seed:messages": "ts-node -r tsconfig-paths/register src/database/seeds/message.seed.ts",
     "seed:payments": "ts-node -r tsconfig-paths/register src/database/seeds/payment.seed.ts",
     "seed:documents": "ts-node -r tsconfig-paths/register src/database/seeds/document.seed.ts",
-    "seed:all": "npm run seed:users && npm run seed:lawyers && npm run seed:consultations && npm run seed:messages && npm run seed:payments && npm run seed:documents"
+    "seed:all": "npm run seed:users && npm run seed:lawyers && npm run seed:consultations && npm run seed:messages && npm run seed:payments && npm run seed:documents",
+    "seed:demo": "psql ${DATABASE_URL} -f database/seeds/seed-data.sql",
+    "seed:demo:docker": "docker exec -i advocata-postgres psql -U advocata -d advocata_db < database/seeds/seed-data.sql"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
