@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/presentation/theme/app_colors.dart';
 import '../../../../core/presentation/theme/app_text_styles.dart';
 import '../../../../core/presentation/widgets/widgets.dart';
@@ -20,20 +21,60 @@ class LawyerDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final lawyerAsync = ref.watch(lawyerByIdProvider(lawyerId));
 
-    return Scaffold(
-      body: lawyerAsync.when(
-        data: (lawyer) => _buildContent(context, lawyer),
-        loading: () => const Scaffold(
-          body: LoadingIndicator(),
+    return lawyerAsync.when(
+      data: (lawyer) => Scaffold(
+        body: _buildContent(context, lawyer),
+        floatingActionButton: _buildBookingButton(context, lawyer),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      ),
+      loading: () => const Scaffold(
+        body: LoadingIndicator(),
+      ),
+      error: (error, stack) => Scaffold(
+        appBar: AppBar(),
+        body: ErrorState(
+          message: error.toString(),
+          onRetry: () {
+            ref.invalidate(lawyerByIdProvider(lawyerId));
+          },
         ),
-        error: (error, stack) => Scaffold(
-          appBar: AppBar(),
-          body: ErrorState(
-            message: error.toString(),
-            onRetry: () {
-              ref.invalidate(lawyerByIdProvider(lawyerId));
-            },
-          ),
+      ),
+    );
+  }
+
+  Widget _buildBookingButton(BuildContext context, LawyerEntity lawyer) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
+      height: 56,
+      child: FloatingActionButton.extended(
+        onPressed: () {
+          context.push('/consultations/book', extra: lawyer);
+        },
+        backgroundColor: AppColors.primary,
+        elevation: 8,
+        label: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.calendar_today, size: 20),
+            const SizedBox(width: 12),
+            Text(
+              'Забронировать консультацию',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '${lawyer.hourlyRate.toStringAsFixed(0)} ₽/час',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+              ),
+            ),
+          ],
         ),
       ),
     );

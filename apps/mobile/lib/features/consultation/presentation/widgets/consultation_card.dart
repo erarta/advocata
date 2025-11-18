@@ -7,11 +7,13 @@ import 'package:intl/intl.dart';
 class ConsultationCard extends StatelessWidget {
   final ConsultationEntity consultation;
   final VoidCallback? onTap;
+  final VoidCallback? onRate;
 
   const ConsultationCard({
     super.key,
     required this.consultation,
     this.onTap,
+    this.onRate,
   });
 
   @override
@@ -83,6 +85,23 @@ class ConsultationCard extends StatelessWidget {
               if (consultation.rating != null) ...[
                 const SizedBox(height: 8),
                 _buildRating(consultation.rating!),
+              ],
+
+              // Rate button (if completed and not rated)
+              if (consultation.status == 'completed' && consultation.rating == null && onRate != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: onRate,
+                    icon: const Icon(Icons.star_outline, size: 18),
+                    label: const Text('Оценить консультацию'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.amber.shade700,
+                      side: BorderSide(color: Colors.amber.shade700),
+                    ),
+                  ),
+                ),
               ],
 
               // Created date
