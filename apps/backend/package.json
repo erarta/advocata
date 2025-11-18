@@ -24,7 +24,9 @@
     "migration:run": "npm run typeorm -- migration:run -d typeorm.config.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d typeorm.config.ts",
     "migration:show": "npm run typeorm -- migration:show -d typeorm.config.ts",
-    "seed:consultations": "ts-node -r tsconfig-paths/register src/database/seeds/consultation.seed.ts"
+    "seed:consultations": "ts-node -r tsconfig-paths/register src/database/seeds/consultation.seed.ts",
+    "seed:messages": "ts-node -r tsconfig-paths/register src/database/seeds/message.seed.ts",
+    "seed:all": "npm run seed:consultations && npm run seed:messages"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",
