@@ -6,13 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { LawyerStatusBadge } from '@/components/lawyers/lawyer-status-badge';
+import { VerificationModal } from '@/components/lawyers/verification-modal';
 import { usePendingLawyers } from '@/lib/hooks/use-lawyers';
 import { formatDate, formatRelativeTime } from '@/lib/utils/formatters';
 import { Search, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import type { PendingLawyer } from '@/lib/types/lawyer';
 
 export default function PendingLawyersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [selectedLawyer, setSelectedLawyer] = useState<PendingLawyer | null>(null);
+  const [verificationModal, setVerificationModal] = useState(false);
   const limit = 20;
 
   const { data, isLoading, error } = usePendingLawyers({
@@ -118,13 +122,16 @@ export default function PendingLawyersPage() {
                       {formatDate(lawyer.submittedAt)}
                     </p>
                     <div className="mt-4 space-x-2">
-                      <Button size="sm" variant="default">
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => {
+                          setSelectedLawyer(lawyer);
+                          setVerificationModal(true);
+                        }}
+                      >
                         <CheckCircle className="mr-2 h-4 w-4" />
-                        Review
-                      </Button>
-                      <Button size="sm" variant="destructive">
-                        <XCircle className="mr-2 h-4 w-4" />
-                        Reject
+                        Проверить
                       </Button>
                     </div>
                   </div>
@@ -156,6 +163,22 @@ export default function PendingLawyersPage() {
             Next
           </Button>
         </div>
+      )}
+
+      {/* Verification Modal */}
+      {selectedLawyer && (
+        <VerificationModal
+          lawyer={selectedLawyer}
+          isOpen={verificationModal}
+          onClose={() => {
+            setVerificationModal(false);
+            setSelectedLawyer(null);
+          }}
+          onVerify={(decision) => {
+            console.log('Verification decision for', selectedLawyer.fullName, ':', decision);
+            // TODO: Refresh the list after verification
+          }}
+        />
       )}
     </div>
   );
