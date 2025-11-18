@@ -36,6 +36,13 @@ export const queryKeys = {
     list: (filters: unknown) => [...queryKeys.users.lists(), filters] as const,
     detail: (id: string) => [...queryKeys.users.all, 'detail', id] as const,
     subscriptions: (id: string) => [...queryKeys.users.all, 'subscriptions', id] as const,
+    consultations: (id: string, params: unknown) =>
+      [...queryKeys.users.all, 'consultations', id, params] as const,
+    payments: (id: string, params: unknown) =>
+      [...queryKeys.users.all, 'payments', id, params] as const,
+    activity: (id: string, params: unknown) =>
+      [...queryKeys.users.all, 'activity', id, params] as const,
+    stats: () => [...queryKeys.users.all, 'stats'] as const,
   },
 
   // Consultations

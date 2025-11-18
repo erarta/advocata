@@ -122,3 +122,62 @@ export interface UserListItem {
   consultationCount: number;
   totalSpent: number;
 }
+
+// API Request/Response Types
+export interface GetUsersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: UserStatus[];
+  subscriptionType?: SubscriptionType[];
+  subscriptionStatus?: SubscriptionStatus[];
+  registeredAfter?: Date;
+  registeredBefore?: Date;
+  consultationsMin?: number;
+  consultationsMax?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface SuspendUserDto {
+  reason: string;
+  details: string;
+  durationDays: number | null; // null = permanent
+  notifyUser: boolean;
+}
+
+export interface BanUserDto {
+  reason: string;
+  details: string;
+  permanent: boolean;
+  expiryDate?: Date;
+  notifyUser: boolean;
+}
+
+export interface UpdateUserDto {
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  status?: UserStatus;
+}
+
+export interface SubscriptionHistory {
+  id: string;
+  type: SubscriptionType;
+  status: SubscriptionStatus;
+  startDate: Date;
+  endDate?: Date;
+  amount: number;
+  action: string;
+  performedBy: string;
+  createdAt: Date;
+}
+
+export interface ActivityLog {
+  id: string;
+  type: 'account_created' | 'subscription_purchased' | 'consultation_booked' | 'review_left' | 'address_added' | 'profile_updated' | 'suspended' | 'banned' | 'other';
+  description: string;
+  performedBy?: string;
+  createdAt: Date;
+  metadata?: Record<string, any>;
+}
