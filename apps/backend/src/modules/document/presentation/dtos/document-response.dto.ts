@@ -53,6 +53,9 @@ export class DocumentResponseDto {
   @ApiPropertyOptional()
   chunkCount?: number;
 
+  @ApiProperty({ description: 'Number of times this document has been downloaded' })
+  downloadCount: number;
+
   @ApiProperty()
   createdAt: Date;
 
@@ -78,6 +81,7 @@ export class DocumentResponseDto {
       processedAt: document.processedAt,
       errorMessage: document.errorMessage,
       chunkCount: document.chunkCount,
+      downloadCount: document.downloadCount,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
     };

@@ -24,12 +24,15 @@ import { OpenAILLMService } from './infrastructure/services/openai-llm.service';
 import { UploadDocumentHandler } from './application/commands/upload-document';
 import { ProcessDocumentHandler } from './application/commands/process-document';
 import { DeleteDocumentHandler } from './application/commands/delete-document';
+import { TrackDownloadHandler } from './application/commands/track-download';
 
 // Query Handlers
 import { SearchDocumentsHandler } from './application/queries/search-documents';
 import { GetDocumentHandler } from './application/queries/get-document';
 import { SearchSimilarDocumentsHandler } from './application/queries/search-similar-documents';
 import { AskQuestionHandler } from './application/queries/ask-question';
+import { GetCategoriesHandler } from './application/queries/get-categories';
+import { GetPopularTemplatesHandler } from './application/queries/get-popular-templates';
 
 // Controllers
 import { DocumentController } from './presentation/controllers/document.controller';
@@ -38,13 +41,20 @@ import { ChatController } from './presentation/controllers/chat.controller';
 // Processors
 import { DocumentProcessor } from './infrastructure/jobs/document.processor';
 
-const commandHandlers = [UploadDocumentHandler, ProcessDocumentHandler, DeleteDocumentHandler];
+const commandHandlers = [
+  UploadDocumentHandler,
+  ProcessDocumentHandler,
+  DeleteDocumentHandler,
+  TrackDownloadHandler,
+];
 
 const queryHandlers = [
   SearchDocumentsHandler,
   GetDocumentHandler,
   SearchSimilarDocumentsHandler,
   AskQuestionHandler,
+  GetCategoriesHandler,
+  GetPopularTemplatesHandler,
 ];
 
 const repositories = [

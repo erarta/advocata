@@ -19,6 +19,10 @@ export interface DocumentRepository {
   search(criteria: DocumentSearchCriteria): Promise<{ documents: Document[]; total: number }>;
   delete(id: string): Promise<void>;
 
+  // Template operations
+  getCategoryCounts(onlyPublic: boolean): Promise<Record<DocumentCategory, number>>;
+  getPopular(limit: number, category?: string): Promise<Document[]>;
+
   // Chunk operations
   saveChunk(chunk: DocumentChunk): Promise<void>;
   saveChunks(chunks: DocumentChunk[]): Promise<void>;

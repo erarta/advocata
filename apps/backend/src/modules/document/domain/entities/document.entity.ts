@@ -44,6 +44,7 @@ export interface DocumentProps {
   processedAt?: Date;
   errorMessage?: string;
   chunkCount?: number;
+  downloadCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +66,7 @@ export class Document extends AggregateRoot<string> {
   private _processedAt?: Date;
   private _errorMessage?: string;
   private _chunkCount?: number;
+  private _downloadCount: number;
   private _createdAt: Date;
   private _updatedAt: Date;
 
@@ -86,6 +88,7 @@ export class Document extends AggregateRoot<string> {
     this._processedAt = props.processedAt;
     this._errorMessage = props.errorMessage;
     this._chunkCount = props.chunkCount;
+    this._downloadCount = props.downloadCount || 0;
     this._createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
   }
@@ -146,6 +149,7 @@ export class Document extends AggregateRoot<string> {
       isPublic,
       tags,
       metadata,
+      downloadCount: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -245,6 +249,12 @@ export class Document extends AggregateRoot<string> {
     return Result.ok();
   }
 
+  public incrementDownloadCount(): Result<void> {
+    this._downloadCount += 1;
+    this._updatedAt = new Date();
+    return Result.ok();
+  }
+
   // Getters
   get lawyerId(): string {
     return this._lawyerId;
@@ -308,6 +318,10 @@ export class Document extends AggregateRoot<string> {
 
   get chunkCount(): number | undefined {
     return this._chunkCount;
+  }
+
+  get downloadCount(): number {
+    return this._downloadCount;
   }
 
   get createdAt(): Date {
