@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Import existing modules for reuse
 import { IdentityModule } from '../identity/identity.module';
@@ -34,6 +35,26 @@ import { BanUserHandler } from './application/commands/users/ban-user';
 import { ActivateUserHandler } from './application/commands/users/activate-user';
 import { DeleteUserHandler } from './application/commands/users/delete-user';
 
+// Import Lawyer Query Handlers
+import { GetLawyersHandler } from './application/queries/lawyers/get-lawyers';
+import { GetPendingLawyersHandler } from './application/queries/lawyers/get-pending-lawyers';
+import { GetLawyerHandler } from './application/queries/lawyers/get-lawyer';
+import { GetLawyerPerformanceHandler } from './application/queries/lawyers/get-lawyer-performance';
+import { GetLawyerStatsHandler } from './application/queries/lawyers/get-lawyer-stats';
+import { GetLawyerReviewsHandler } from './application/queries/lawyers/get-lawyer-reviews';
+
+// Import Lawyer Command Handlers
+import { VerifyLawyerHandler } from './application/commands/lawyers/verify-lawyer';
+import { UpdateLawyerHandler } from './application/commands/lawyers/update-lawyer';
+import { SuspendLawyerHandler } from './application/commands/lawyers/suspend-lawyer';
+import { BanLawyerHandler } from './application/commands/lawyers/ban-lawyer';
+import { ActivateLawyerHandler } from './application/commands/lawyers/activate-lawyer';
+import { DeleteLawyerHandler } from './application/commands/lawyers/delete-lawyer';
+
+// Import ORM Entities for TypeORM
+import { UserOrmEntity } from '../identity/infrastructure/persistence/user.orm-entity';
+import { LawyerOrmEntity } from '../lawyer/infrastructure/persistence/lawyer.orm-entity';
+
 // User handlers
 const userQueryHandlers = [
   GetUsersHandler,
@@ -50,9 +71,24 @@ const userCommandHandlers = [
   DeleteUserHandler,
 ];
 
-// TODO: Add Lawyer handlers
-const lawyerQueryHandlers = [];
-const lawyerCommandHandlers = [];
+// Lawyer handlers
+const lawyerQueryHandlers = [
+  GetLawyersHandler,
+  GetPendingLawyersHandler,
+  GetLawyerHandler,
+  GetLawyerPerformanceHandler,
+  GetLawyerStatsHandler,
+  GetLawyerReviewsHandler,
+];
+
+const lawyerCommandHandlers = [
+  VerifyLawyerHandler,
+  UpdateLawyerHandler,
+  SuspendLawyerHandler,
+  BanLawyerHandler,
+  ActivateLawyerHandler,
+  DeleteLawyerHandler,
+];
 
 // TODO: Add Consultation handlers
 const consultationQueryHandlers = [];
@@ -84,6 +120,8 @@ const queryHandlers = [
 @Module({
   imports: [
     CqrsModule,
+    // TypeORM entities for query/command handlers
+    TypeOrmModule.forFeature([UserOrmEntity, LawyerOrmEntity]),
     // Import existing modules to reuse their services and repositories
     IdentityModule,
     LawyerModule,
