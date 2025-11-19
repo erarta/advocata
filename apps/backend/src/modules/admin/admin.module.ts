@@ -216,6 +216,31 @@ import { CreateOnboardingSlideHandler } from './application/commands/content/cre
 import { UpdateOnboardingSlideHandler } from './application/commands/content/update-onboarding-slide';
 import { DeleteOnboardingSlideHandler } from './application/commands/content/delete-onboarding-slide';
 
+// Import Settings Query Handlers
+import { GetPlatformConfigHandler } from './application/queries/settings/get-platform-config';
+import { GetFeatureFlagsHandler } from './application/queries/settings/get-feature-flags';
+import { GetNotificationTemplatesHandler } from './application/queries/settings/get-notification-templates';
+import { GetNotificationTemplateHandler } from './application/queries/settings/get-notification-template';
+import { GetRateLimitsHandler } from './application/queries/settings/get-rate-limits';
+import { GetAdminRolesHandler } from './application/queries/settings/get-admin-roles';
+import { GetAdminUsersHandler } from './application/queries/settings/get-admin-users';
+import { GetAuditLogHandler } from './application/queries/settings/get-audit-log';
+import { GetAuditLogStatsHandler } from './application/queries/settings/get-audit-log-stats';
+import { GetEmailConfigHandler } from './application/queries/settings/get-email-config';
+import { GetSMSConfigHandler } from './application/queries/settings/get-sms-config';
+import { GetSystemHealthHandler } from './application/queries/settings/get-system-health';
+
+// Import Settings Command Handlers
+import { UpdatePlatformConfigHandler } from './application/commands/settings/update-platform-config';
+import { UpdateFeatureFlagHandler } from './application/commands/settings/update-feature-flag';
+import { UpdateNotificationTemplateHandler } from './application/commands/settings/update-notification-template';
+import { UpdateEmailConfigHandler } from './application/commands/settings/update-email-config';
+import { UpdateSMSConfigHandler } from './application/commands/settings/update-sms-config';
+import { UpdateRateLimitHandler } from './application/commands/settings/update-rate-limit';
+import { CreateAdminRoleHandler } from './application/commands/settings/create-admin-role';
+import { UpdateAdminRoleHandler } from './application/commands/settings/update-admin-role';
+import { AssignAdminRoleHandler } from './application/commands/settings/assign-admin-role';
+
 // Content handlers
 const contentQueryHandlers = [
   GetDocumentTemplatesHandler,
@@ -246,6 +271,34 @@ const contentCommandHandlers = [
   DeleteOnboardingSlideHandler,
 ];
 
+// Settings handlers
+const settingsQueryHandlers = [
+  GetPlatformConfigHandler,
+  GetFeatureFlagsHandler,
+  GetNotificationTemplatesHandler,
+  GetNotificationTemplateHandler,
+  GetRateLimitsHandler,
+  GetAdminRolesHandler,
+  GetAdminUsersHandler,
+  GetAuditLogHandler,
+  GetAuditLogStatsHandler,
+  GetEmailConfigHandler,
+  GetSMSConfigHandler,
+  GetSystemHealthHandler,
+];
+
+const settingsCommandHandlers = [
+  UpdatePlatformConfigHandler,
+  UpdateFeatureFlagHandler,
+  UpdateNotificationTemplateHandler,
+  UpdateEmailConfigHandler,
+  UpdateSMSConfigHandler,
+  UpdateRateLimitHandler,
+  CreateAdminRoleHandler,
+  UpdateAdminRoleHandler,
+  AssignAdminRoleHandler,
+];
+
 // Combine all handlers
 const commandHandlers = [
   ...userCommandHandlers,
@@ -253,6 +306,7 @@ const commandHandlers = [
   ...consultationCommandHandlers,
   ...financialCommandHandlers,
   ...contentCommandHandlers,
+  ...settingsCommandHandlers,
 ];
 
 const queryHandlers = [
@@ -262,6 +316,7 @@ const queryHandlers = [
   ...analyticsQueryHandlers,
   ...financialQueryHandlers,
   ...contentQueryHandlers,
+  ...settingsQueryHandlers,
 ];
 
 @Module({
