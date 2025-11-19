@@ -16,6 +16,24 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AdminAuthGuard } from '../../infrastructure/guards/admin-auth.guard';
 import { AdminRoles } from '../../infrastructure/decorators/admin-roles.decorator';
 
+// Import DTOs
+import { GetConsultationsDto } from '../dtos/consultations/get-consultations.dto';
+import { UpdateConsultationStatusDto } from '../dtos/consultations/update-consultation-status.dto';
+
+// Import Queries
+import { GetConsultationsQuery } from '../../application/queries/consultations/get-consultations';
+import { GetLiveConsultationsQuery } from '../../application/queries/consultations/get-live-consultations';
+import { GetConsultationQuery } from '../../application/queries/consultations/get-consultation';
+import { GetConsultationMessagesQuery } from '../../application/queries/consultations/get-consultation-messages';
+import { GetDisputesQuery } from '../../application/queries/consultations/get-disputes';
+import { GetEmergencyCallsQuery } from '../../application/queries/consultations/get-emergency-calls';
+import { GetConsultationStatsQuery } from '../../application/queries/consultations/get-consultation-stats';
+
+// Import Commands
+import { UpdateConsultationStatusCommand } from '../../application/commands/consultations/update-consultation-status';
+import { IssueRefundCommand } from '../../application/commands/consultations/issue-refund';
+import { ResolveDisputeCommand } from '../../application/commands/consultations/resolve-dispute';
+
 @ApiTags('admin/consultations')
 @Controller('admin/consultations')
 @UseGuards(AdminAuthGuard)
@@ -30,29 +48,36 @@ export class AdminConsultationsController {
   @Get()
   @ApiOperation({ summary: 'Get all consultations with filters and pagination' })
   @ApiResponse({ status: 200, description: 'Consultations retrieved successfully' })
-  async getConsultations(@Query() query: any) {
-    // TODO: Implement GetConsultationsQuery
-    return {
-      items: [],
-      total: 0,
-      page: query.page || 1,
-      limit: query.limit || 20,
-      totalPages: 0,
-    };
+  async getConsultations(@Query() dto: GetConsultationsDto) {
+    return this.queryBus.execute(new GetConsultationsQuery(dto));
+  }
+
+  @Get('live')
+  @ApiOperation({ summary: 'Get consultations currently in progress' })
+  @ApiResponse({ status: 200, description: 'Live consultations retrieved successfully' })
+  async getLiveConsultations() {
+    return this.queryBus.execute(new GetLiveConsultationsQuery());
   }
 
   @Get('stats')
   @ApiOperation({ summary: 'Get consultation statistics' })
   @ApiResponse({ status: 200, description: 'Consultation stats retrieved successfully' })
-  async getConsultationStats() {
-    // TODO: Implement GetConsultationStatsQuery
-    return {
-      totalConsultations: 0,
-      activeConsultations: 0,
-      completedConsultations: 0,
-      cancelledConsultations: 0,
-      averageDuration: 0,
-    };
+  async getConsultationStats(@Query() dto: any) {
+    return this.queryBus.execute(new GetConsultationStatsQuery(dto));
+  }
+
+  @Get('disputes')
+  @ApiOperation({ summary: 'Get consultations with disputes' })
+  @ApiResponse({ status: 200, description: 'Disputed consultations retrieved successfully' })
+  async getDisputes(@Query() dto: any) {
+    return this.queryBus.execute(new GetDisputesQuery(dto));
+  }
+
+  @Get('emergency')
+  @ApiOperation({ summary: 'Get emergency consultation requests' })
+  @ApiResponse({ status: 200, description: 'Emergency calls retrieved successfully' })
+  async getEmergencyCalls(@Query() dto: any) {
+    return this.queryBus.execute(new GetEmergencyCallsQuery(dto));
   }
 
   @Get(':id')
@@ -60,56 +85,24 @@ export class AdminConsultationsController {
   @ApiResponse({ status: 200, description: 'Consultation retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Consultation not found' })
   async getConsultation(@Param('id') id: string) {
-    // TODO: Implement GetConsultationQuery
-    return {
-      id,
-      clientId: '',
-      lawyerId: '',
-      status: 'scheduled',
-      scheduledTime: new Date(),
-    };
-  }
-
-  @Patch(':id/status')
-  @ApiOperation({ summary: 'Update consultation status' })
-  @ApiResponse({ status: 200, description: 'Consultation status updated successfully' })
-  async updateConsultationStatus(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateConsultationStatusCommand
-    // const command = new UpdateConsultationStatusCommand(id, data.status, data.reason);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Consultation status updated successfully' };
-  }
-
-  @Post(':id/cancel')
-  @ApiOperation({ summary: 'Cancel consultation' })
-  @ApiResponse({ status: 200, description: 'Consultation cancelled successfully' })
-  @HttpCode(HttpStatus.OK)
-  async cancelConsultation(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement CancelConsultationCommand
-    // const command = new CancelConsultationCommand(id, data.reason);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Consultation cancelled successfully' };
+    return this.queryBus.execute(new GetConsultationQuery(id));
   }
 
   @Get(':id/messages')
   @ApiOperation({ summary: 'Get consultation messages' })
   @ApiResponse({ status: 200, description: 'Messages retrieved successfully' })
-  async getConsultationMessages(@Param('id') id: string, @Query() query: any) {
-    // TODO: Implement GetConsultationMessagesQuery
-    return {
-      messages: [],
-      total: 0,
-    };
+  async getConsultationMessages(@Param('id') id: string, @Query() dto: any) {
+    return this.queryBus.execute(new GetConsultationMessagesQuery(id, dto));
   }
 
-  @Get(':id/recordings')
-  @ApiOperation({ summary: 'Get consultation recordings' })
-  @ApiResponse({ status: 200, description: 'Recordings retrieved successfully' })
-  async getConsultationRecordings(@Param('id') id: string) {
-    // TODO: Implement GetConsultationRecordingsQuery
-    return {
-      recordings: [],
-    };
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Update consultation status' })
+  @ApiResponse({ status: 200, description: 'Consultation status updated successfully' })
+  async updateConsultationStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateConsultationStatusDto,
+  ) {
+    return this.commandBus.execute(new UpdateConsultationStatusCommand(id, dto));
   }
 
   @Post(':id/refund')
@@ -117,22 +110,8 @@ export class AdminConsultationsController {
   @ApiResponse({ status: 200, description: 'Refund processed successfully' })
   @AdminRoles('admin', 'super_admin')
   @HttpCode(HttpStatus.OK)
-  async refundConsultation(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement RefundConsultationCommand
-    // const command = new RefundConsultationCommand(id, data.amount, data.reason);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Refund processed successfully' };
-  }
-
-  @Get('disputes/list')
-  @ApiOperation({ summary: 'Get consultations with disputes' })
-  @ApiResponse({ status: 200, description: 'Disputed consultations retrieved successfully' })
-  async getDisputedConsultations(@Query() query: any) {
-    // TODO: Implement GetDisputedConsultationsQuery
-    return {
-      items: [],
-      total: 0,
-    };
+  async issueRefund(@Param('id') id: string, @Body() dto: any) {
+    return this.commandBus.execute(new IssueRefundCommand(id, dto));
   }
 
   @Post(':id/resolve-dispute')
@@ -140,8 +119,7 @@ export class AdminConsultationsController {
   @ApiResponse({ status: 200, description: 'Dispute resolved successfully' })
   @AdminRoles('admin', 'super_admin')
   @HttpCode(HttpStatus.OK)
-  async resolveDispute(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement ResolveDisputeCommand
-    return { success: true, message: 'Dispute resolved successfully' };
+  async resolveDispute(@Param('id') id: string, @Body() dto: any) {
+    return this.commandBus.execute(new ResolveDisputeCommand(id, dto));
   }
 }

@@ -9,6 +9,7 @@ import { ConsultationModule } from '../consultation/consultation.module';
 import { PaymentModule } from '../payment/payment.module';
 import { DocumentModule } from '../document/document.module';
 import { MessageModule } from '../message/message.module';
+import { EmergencyCallModule } from '../emergency-call/emergency-call.module';
 
 // Import controllers
 import { AdminUsersController } from './presentation/controllers/admin-users.controller';
@@ -62,9 +63,26 @@ import { GetUserGrowthMetricsHandler } from './application/queries/analytics/get
 import { GetGeographicAnalyticsHandler } from './application/queries/analytics/get-geographic-analytics';
 import { GetSpecializationAnalyticsHandler } from './application/queries/analytics/get-specialization-analytics';
 
+// Import Consultation Query Handlers
+import { GetConsultationsHandler } from './application/queries/consultations/get-consultations';
+import { GetLiveConsultationsHandler } from './application/queries/consultations/get-live-consultations';
+import { GetConsultationHandler } from './application/queries/consultations/get-consultation';
+import { GetConsultationMessagesHandler } from './application/queries/consultations/get-consultation-messages';
+import { GetDisputesHandler } from './application/queries/consultations/get-disputes';
+import { GetEmergencyCallsHandler } from './application/queries/consultations/get-emergency-calls';
+import { GetConsultationStatsHandler } from './application/queries/consultations/get-consultation-stats';
+
+// Import Consultation Command Handlers
+import { UpdateConsultationStatusHandler } from './application/commands/consultations/update-consultation-status';
+import { IssueRefundHandler } from './application/commands/consultations/issue-refund';
+import { ResolveDisputeHandler } from './application/commands/consultations/resolve-dispute';
+
 // Import ORM Entities for TypeORM
 import { UserOrmEntity } from '../identity/infrastructure/persistence/user.orm-entity';
 import { LawyerOrmEntity } from '../lawyer/infrastructure/persistence/lawyer.orm-entity';
+import { ConsultationOrmEntity } from '../consultation/infrastructure/persistence/consultation.orm-entity';
+import { MessageOrmEntity } from '../message/infrastructure/persistence/message.orm-entity';
+import { EmergencyCallOrmEntity } from '../emergency-call/infrastructure/persistence/emergency-call.orm-entity';
 
 // User handlers
 const userQueryHandlers = [
@@ -101,9 +119,22 @@ const lawyerCommandHandlers = [
   DeleteLawyerHandler,
 ];
 
-// TODO: Add Consultation handlers
-const consultationQueryHandlers = [];
-const consultationCommandHandlers = [];
+// Consultation handlers
+const consultationQueryHandlers = [
+  GetConsultationsHandler,
+  GetLiveConsultationsHandler,
+  GetConsultationHandler,
+  GetConsultationMessagesHandler,
+  GetDisputesHandler,
+  GetEmergencyCallsHandler,
+  GetConsultationStatsHandler,
+];
+
+const consultationCommandHandlers = [
+  UpdateConsultationStatusHandler,
+  IssueRefundHandler,
+  ResolveDisputeHandler,
+];
 
 // Analytics handlers
 const analyticsQueryHandlers = [
@@ -142,7 +173,13 @@ const queryHandlers = [
   imports: [
     CqrsModule,
     // TypeORM entities for query/command handlers
-    TypeOrmModule.forFeature([UserOrmEntity, LawyerOrmEntity]),
+    TypeOrmModule.forFeature([
+      UserOrmEntity,
+      LawyerOrmEntity,
+      ConsultationOrmEntity,
+      MessageOrmEntity,
+      EmergencyCallOrmEntity,
+    ]),
     // Import existing modules to reuse their services and repositories
     IdentityModule,
     LawyerModule,
@@ -150,6 +187,7 @@ const queryHandlers = [
     PaymentModule,
     DocumentModule,
     MessageModule,
+    EmergencyCallModule,
   ],
   controllers: [
     AdminUsersController,
