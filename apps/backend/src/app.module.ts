@@ -11,6 +11,7 @@ import { DocumentModule } from './modules/document/document.module';
 import { ConsultationModule } from './modules/consultation/consultation.module';
 import { MessageModule } from './modules/message/message.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { AdminModule } from './modules/admin/admin.module';
 // import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
@@ -53,6 +54,7 @@ import { PaymentModule } from './modules/payment/payment.module';
     ConsultationModule,
     MessageModule,
     PaymentModule,
+    AdminModule,
     // NotificationModule,
   ],
   controllers: [],
