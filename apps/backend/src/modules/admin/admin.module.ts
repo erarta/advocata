@@ -21,28 +21,64 @@ import { AdminSettingsController } from './presentation/controllers/admin-settin
 // Import guards (will be used by controllers)
 import { AdminAuthGuard } from './infrastructure/guards/admin-auth.guard';
 
-// TODO: Import command handlers when implemented
-// import { ... } from './application/commands/...';
+// Import User Query Handlers
+import { GetUsersHandler } from './application/queries/users/get-users';
+import { GetUserHandler } from './application/queries/users/get-user';
+import { GetUserStatsHandler } from './application/queries/users/get-user-stats';
+import { GetUserActivityHandler } from './application/queries/users/get-user-activity';
 
-// TODO: Import query handlers when implemented
-// import { ... } from './application/queries/...';
+// Import User Command Handlers
+import { UpdateUserHandler } from './application/commands/users/update-user';
+import { SuspendUserHandler } from './application/commands/users/suspend-user';
+import { BanUserHandler } from './application/commands/users/ban-user';
+import { ActivateUserHandler } from './application/commands/users/activate-user';
+import { DeleteUserHandler } from './application/commands/users/delete-user';
 
+// User handlers
+const userQueryHandlers = [
+  GetUsersHandler,
+  GetUserHandler,
+  GetUserStatsHandler,
+  GetUserActivityHandler,
+];
+
+const userCommandHandlers = [
+  UpdateUserHandler,
+  SuspendUserHandler,
+  BanUserHandler,
+  ActivateUserHandler,
+  DeleteUserHandler,
+];
+
+// TODO: Add Lawyer handlers
+const lawyerQueryHandlers = [];
+const lawyerCommandHandlers = [];
+
+// TODO: Add Consultation handlers
+const consultationQueryHandlers = [];
+const consultationCommandHandlers = [];
+
+// TODO: Add Analytics handlers
+const analyticsQueryHandlers = [];
+
+// TODO: Add Financial handlers
+const financialQueryHandlers = [];
+const financialCommandHandlers = [];
+
+// Combine all handlers
 const commandHandlers = [
-  // TODO: Add command handlers here
-  // Example:
-  // SuspendUserHandler,
-  // BanUserHandler,
-  // VerifyLawyerHandler,
-  // etc.
+  ...userCommandHandlers,
+  ...lawyerCommandHandlers,
+  ...consultationCommandHandlers,
+  ...financialCommandHandlers,
 ];
 
 const queryHandlers = [
-  // TODO: Add query handlers here
-  // Example:
-  // GetUsersHandler,
-  // GetLawyersHandler,
-  // GetDashboardMetricsHandler,
-  // etc.
+  ...userQueryHandlers,
+  ...lawyerQueryHandlers,
+  ...consultationQueryHandlers,
+  ...analyticsQueryHandlers,
+  ...financialQueryHandlers,
 ];
 
 @Module({

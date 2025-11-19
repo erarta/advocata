@@ -16,6 +16,27 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AdminAuthGuard } from '../../infrastructure/guards/admin-auth.guard';
 import { AdminRoles } from '../../infrastructure/decorators/admin-roles.decorator';
 
+// Import DTOs
+import {
+  GetUsersDto,
+  UpdateUserDto,
+  SuspendUserDto,
+  BanUserDto,
+} from '../dtos/users';
+
+// Import Queries
+import { GetUsersQuery } from '../../application/queries/users/get-users';
+import { GetUserQuery } from '../../application/queries/users/get-user';
+import { GetUserStatsQuery } from '../../application/queries/users/get-user-stats';
+import { GetUserActivityQuery } from '../../application/queries/users/get-user-activity';
+
+// Import Commands
+import { UpdateUserCommand } from '../../application/commands/users/update-user';
+import { SuspendUserCommand } from '../../application/commands/users/suspend-user';
+import { BanUserCommand } from '../../application/commands/users/ban-user';
+import { ActivateUserCommand } from '../../application/commands/users/activate-user';
+import { DeleteUserCommand } from '../../application/commands/users/delete-user';
+
 @ApiTags('admin/users')
 @Controller('admin/users')
 @UseGuards(AdminAuthGuard)
@@ -30,31 +51,15 @@ export class AdminUsersController {
   @Get()
   @ApiOperation({ summary: 'Get all users with filters and pagination' })
   @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
-  async getUsers(@Query() query: any) {
-    // TODO: Implement GetUsersQuery
-    // const queryHandler = new GetUsersQuery(query);
-    // const result = await this.queryBus.execute(queryHandler);
-    return {
-      items: [],
-      total: 0,
-      page: query.page || 1,
-      limit: query.limit || 20,
-      totalPages: 0,
-    };
+  async getUsers(@Query() dto: GetUsersDto) {
+    return this.queryBus.execute(new GetUsersQuery(dto));
   }
 
   @Get('stats')
   @ApiOperation({ summary: 'Get user statistics' })
   @ApiResponse({ status: 200, description: 'User stats retrieved successfully' })
   async getUserStats() {
-    // TODO: Implement GetUserStatsQuery
-    return {
-      totalUsers: 0,
-      activeUsers: 0,
-      suspendedUsers: 0,
-      bannedUsers: 0,
-      newUsersThisMonth: 0,
-    };
+    return this.queryBus.execute(new GetUserStatsQuery());
   }
 
   @Get(':id')
@@ -62,44 +67,44 @@ export class AdminUsersController {
   @ApiResponse({ status: 200, description: 'User retrieved successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUser(@Param('id') id: string) {
-    // TODO: Implement GetUserQuery
-    return {
-      id,
-      email: 'user@example.com',
-      role: 'client',
-      status: 'active',
-    };
+    return this.queryBus.execute(new GetUserQuery(id));
+  }
+
+  @Get(':id/activity')
+  @ApiOperation({ summary: 'Get user activity log' })
+  @ApiResponse({ status: 200, description: 'Activity log retrieved successfully' })
+  async getUserActivity(
+    @Param('id') id: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.queryBus.execute(new GetUserActivityQuery(id, limit));
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update user details' })
   @ApiResponse({ status: 200, description: 'User updated successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async updateUser(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateUserCommand
-    // const command = new UpdateUserCommand(id, data);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'User updated successfully' };
+  async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.commandBus.execute(new UpdateUserCommand(id, dto));
   }
 
   @Post(':id/suspend')
   @ApiOperation({ summary: 'Suspend user account' })
   @ApiResponse({ status: 200, description: 'User suspended successfully' })
   @HttpCode(HttpStatus.OK)
-  async suspendUser(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement SuspendUserCommand
-    // const command = new SuspendUserCommand(id, data.reason, data.duration);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'User suspended successfully' };
+  async suspendUser(@Param('id') id: string, @Body() dto: SuspendUserDto) {
+    return this.commandBus.execute(new SuspendUserCommand(id, dto));
   }
 
   @Post(':id/unsuspend')
-  @ApiOperation({ summary: 'Unsuspend user account' })
+  @ApiOperation({ summary: 'Unsuspend user account (activate)' })
   @ApiResponse({ status: 200, description: 'User unsuspended successfully' })
   @HttpCode(HttpStatus.OK)
-  async unsuspendUser(@Param('id') id: string) {
-    // TODO: Implement UnsuspendUserCommand
-    return { success: true, message: 'User unsuspended successfully' };
+  async unsuspendUser(
+    @Param('id') id: string,
+    @Body() body?: { notes?: string },
+  ) {
+    return this.commandBus.execute(new ActivateUserCommand(id, body?.notes));
   }
 
   @Post(':id/ban')
@@ -107,21 +112,17 @@ export class AdminUsersController {
   @ApiResponse({ status: 200, description: 'User banned successfully' })
   @AdminRoles('super_admin')
   @HttpCode(HttpStatus.OK)
-  async banUser(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement BanUserCommand
-    // const command = new BanUserCommand(id, data.reason);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'User banned successfully' };
+  async banUser(@Param('id') id: string, @Body() dto: BanUserDto) {
+    return this.commandBus.execute(new BanUserCommand(id, dto));
   }
 
   @Post(':id/unban')
-  @ApiOperation({ summary: 'Unban user account' })
+  @ApiOperation({ summary: 'Unban user account (activate)' })
   @ApiResponse({ status: 200, description: 'User unbanned successfully' })
   @AdminRoles('super_admin')
   @HttpCode(HttpStatus.OK)
-  async unbanUser(@Param('id') id: string) {
-    // TODO: Implement UnbanUserCommand
-    return { success: true, message: 'User unbanned successfully' };
+  async unbanUser(@Param('id') id: string, @Body() body?: { notes?: string }) {
+    return this.commandBus.execute(new ActivateUserCommand(id, body?.notes));
   }
 
   @Delete(':id')
@@ -131,21 +132,6 @@ export class AdminUsersController {
   @AdminRoles('super_admin')
   @HttpCode(HttpStatus.OK)
   async deleteUser(@Param('id') id: string) {
-    // TODO: Implement DeleteUserCommand
-    // const command = new DeleteUserCommand(id);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'User deleted successfully' };
-  }
-
-  @Get(':id/activity')
-  @ApiOperation({ summary: 'Get user activity log' })
-  @ApiResponse({ status: 200, description: 'Activity log retrieved successfully' })
-  async getUserActivity(@Param('id') id: string, @Query() query: any) {
-    // TODO: Implement GetUserActivityQuery
-    return {
-      activities: [],
-      total: 0,
-      page: query.page || 1,
-    };
+    return this.commandBus.execute(new DeleteUserCommand(id));
   }
 }
