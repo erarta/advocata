@@ -51,6 +51,17 @@ import { BanLawyerHandler } from './application/commands/lawyers/ban-lawyer';
 import { ActivateLawyerHandler } from './application/commands/lawyers/activate-lawyer';
 import { DeleteLawyerHandler } from './application/commands/lawyers/delete-lawyer';
 
+// Import Analytics Query Handlers
+import { GetDashboardMetricsHandler } from './application/queries/analytics/get-dashboard-metrics';
+import { GetRevenueAnalyticsHandler } from './application/queries/analytics/get-revenue-analytics';
+import { GetUserGrowthHandler } from './application/queries/analytics/get-user-growth';
+import { GetLawyerPerformanceAnalyticsHandler } from './application/queries/analytics/get-lawyer-performance-analytics';
+import { GetPlatformAnalyticsHandler } from './application/queries/analytics/get-platform-analytics';
+import { GetRevenueMetricsHandler } from './application/queries/analytics/get-revenue-metrics';
+import { GetUserGrowthMetricsHandler } from './application/queries/analytics/get-user-growth-metrics';
+import { GetGeographicAnalyticsHandler } from './application/queries/analytics/get-geographic-analytics';
+import { GetSpecializationAnalyticsHandler } from './application/queries/analytics/get-specialization-analytics';
+
 // Import ORM Entities for TypeORM
 import { UserOrmEntity } from '../identity/infrastructure/persistence/user.orm-entity';
 import { LawyerOrmEntity } from '../lawyer/infrastructure/persistence/lawyer.orm-entity';
@@ -94,8 +105,18 @@ const lawyerCommandHandlers = [
 const consultationQueryHandlers = [];
 const consultationCommandHandlers = [];
 
-// TODO: Add Analytics handlers
-const analyticsQueryHandlers = [];
+// Analytics handlers
+const analyticsQueryHandlers = [
+  GetDashboardMetricsHandler,
+  GetRevenueAnalyticsHandler,
+  GetUserGrowthHandler,
+  GetLawyerPerformanceAnalyticsHandler,
+  GetPlatformAnalyticsHandler,
+  GetRevenueMetricsHandler,
+  GetUserGrowthMetricsHandler,
+  GetGeographicAnalyticsHandler,
+  GetSpecializationAnalyticsHandler,
+];
 
 // TODO: Add Financial handlers
 const financialQueryHandlers = [];
