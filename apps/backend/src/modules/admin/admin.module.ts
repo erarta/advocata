@@ -83,6 +83,7 @@ import { LawyerOrmEntity } from '../lawyer/infrastructure/persistence/lawyer.orm
 import { ConsultationOrmEntity } from '../consultation/infrastructure/persistence/consultation.orm-entity';
 import { MessageOrmEntity } from '../message/infrastructure/persistence/message.orm-entity';
 import { EmergencyCallOrmEntity } from '../emergency-call/infrastructure/persistence/emergency-call.orm-entity';
+import { PaymentOrmEntity } from '../payment/infrastructure/persistence/payment.orm-entity';
 
 // User handlers
 const userQueryHandlers = [
@@ -149,9 +150,44 @@ const analyticsQueryHandlers = [
   GetSpecializationAnalyticsHandler,
 ];
 
-// TODO: Add Financial handlers
-const financialQueryHandlers = [];
-const financialCommandHandlers = [];
+// Import Financial Query Handlers
+import { GetTransactionsHandler } from './application/queries/financial/get-transactions';
+import { GetPayoutsHandler } from './application/queries/financial/get-payouts';
+import { GetPayoutHistoryHandler } from './application/queries/financial/get-payout-history';
+import { GetRefundsHandler } from './application/queries/financial/get-refunds';
+import { GetCommissionsHandler } from './application/queries/financial/get-commissions';
+import { GetFinancialStatsHandler } from './application/queries/financial/get-financial-stats';
+import { GetPlatformBalanceHandler } from './application/queries/financial/get-platform-balance';
+import { GetSubscriptionsHandler } from './application/queries/financial/get-subscriptions';
+
+// Import Financial Command Handlers
+import { ProcessPayoutHandler } from './application/commands/financial/process-payout';
+import { ProcessBulkPayoutsHandler } from './application/commands/financial/process-bulk-payouts';
+import { ApproveRefundHandler } from './application/commands/financial/approve-refund';
+import { RejectRefundHandler } from './application/commands/financial/reject-refund';
+import { UpdateCommissionsHandler } from './application/commands/financial/update-commissions';
+import { UpdateSubscriptionHandler } from './application/commands/financial/update-subscription';
+
+// Financial handlers
+const financialQueryHandlers = [
+  GetTransactionsHandler,
+  GetPayoutsHandler,
+  GetPayoutHistoryHandler,
+  GetRefundsHandler,
+  GetCommissionsHandler,
+  GetFinancialStatsHandler,
+  GetPlatformBalanceHandler,
+  GetSubscriptionsHandler,
+];
+
+const financialCommandHandlers = [
+  ProcessPayoutHandler,
+  ProcessBulkPayoutsHandler,
+  ApproveRefundHandler,
+  RejectRefundHandler,
+  UpdateCommissionsHandler,
+  UpdateSubscriptionHandler,
+];
 
 // Combine all handlers
 const commandHandlers = [
@@ -179,6 +215,7 @@ const queryHandlers = [
       ConsultationOrmEntity,
       MessageOrmEntity,
       EmergencyCallOrmEntity,
+      PaymentOrmEntity,
     ]),
     // Import existing modules to reuse their services and repositories
     IdentityModule,

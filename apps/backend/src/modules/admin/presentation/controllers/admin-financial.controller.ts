@@ -30,14 +30,8 @@ export class AdminFinancialController {
   @ApiOperation({ summary: 'Get all transactions with filters' })
   @ApiResponse({ status: 200, description: 'Transactions retrieved successfully' })
   async getTransactions(@Query() query: any) {
-    // TODO: Implement GetTransactionsQuery
-    return {
-      items: [],
-      total: 0,
-      page: query.page || 1,
-      limit: query.limit || 20,
-      totalPages: 0,
-    };
+    const { GetTransactionsQuery } = await import('../../application/queries/financial/get-transactions');
+    return this.queryBus.execute(new GetTransactionsQuery(query));
   }
 
   @Get('transactions/:id')
@@ -58,71 +52,52 @@ export class AdminFinancialController {
   @ApiOperation({ summary: 'Get lawyer payouts' })
   @ApiResponse({ status: 200, description: 'Payouts retrieved successfully' })
   async getPayouts(@Query() query: any) {
-    // TODO: Implement GetPayoutsQuery
-    return {
-      items: [],
-      total: 0,
-      pending: 0,
-      processed: 0,
-    };
+    const { GetPayoutsQuery } = await import('../../application/queries/financial/get-payouts');
+    return this.queryBus.execute(new GetPayoutsQuery(query));
   }
 
   @Get('payouts/pending')
   @ApiOperation({ summary: 'Get pending payouts' })
   @ApiResponse({ status: 200, description: 'Pending payouts retrieved successfully' })
   async getPendingPayouts(@Query() query: any) {
-    // TODO: Implement GetPendingPayoutsQuery
-    return {
-      items: [],
-      total: 0,
-      totalAmount: 0,
-    };
+    const { GetPayoutsQuery } = await import('../../application/queries/financial/get-payouts');
+    return this.queryBus.execute(new GetPayoutsQuery({ ...query, status: 'pending' }));
   }
 
   @Post('payouts/:id/process')
   @ApiOperation({ summary: 'Process payout to lawyer' })
   @ApiResponse({ status: 200, description: 'Payout processed successfully' })
   @HttpCode(HttpStatus.OK)
+  @AdminRoles('super_admin')
   async processPayout(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement ProcessPayoutCommand
-    // const command = new ProcessPayoutCommand(id, data.method);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Payout processed successfully' };
+    const { ProcessPayoutCommand } = await import('../../application/commands/financial/process-payout');
+    return this.commandBus.execute(new ProcessPayoutCommand(id, data));
   }
 
   @Post('payouts/batch-process')
   @ApiOperation({ summary: 'Process multiple payouts in batch' })
   @ApiResponse({ status: 200, description: 'Batch payouts processed successfully' })
   @HttpCode(HttpStatus.OK)
+  @AdminRoles('super_admin')
   async batchProcessPayouts(@Body() data: any) {
-    // TODO: Implement BatchProcessPayoutsCommand
-    // const command = new BatchProcessPayoutsCommand(data.payoutIds);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Batch payouts processed successfully' };
+    const { ProcessBulkPayoutsCommand } = await import('../../application/commands/financial/process-bulk-payouts');
+    return this.commandBus.execute(new ProcessBulkPayoutsCommand(data.payouts));
   }
 
   @Get('refunds')
   @ApiOperation({ summary: 'Get all refunds' })
   @ApiResponse({ status: 200, description: 'Refunds retrieved successfully' })
   async getRefunds(@Query() query: any) {
-    // TODO: Implement GetRefundsQuery
-    return {
-      items: [],
-      total: 0,
-      pending: 0,
-      processed: 0,
-    };
+    const { GetRefundsQuery } = await import('../../application/queries/financial/get-refunds');
+    return this.queryBus.execute(new GetRefundsQuery(query));
   }
 
   @Get('refunds/pending')
   @ApiOperation({ summary: 'Get pending refund requests' })
   @ApiResponse({ status: 200, description: 'Pending refunds retrieved successfully' })
   async getPendingRefunds(@Query() query: any) {
-    // TODO: Implement GetPendingRefundsQuery
-    return {
-      items: [],
-      total: 0,
-    };
+    const { GetRefundsQuery } = await import('../../application/queries/financial/get-refunds');
+    return this.queryBus.execute(new GetRefundsQuery({ ...query, status: 'pending' }));
   }
 
   @Post('refunds/:id/approve')
@@ -130,10 +105,8 @@ export class AdminFinancialController {
   @ApiResponse({ status: 200, description: 'Refund approved successfully' })
   @HttpCode(HttpStatus.OK)
   async approveRefund(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement ApproveRefundCommand
-    // const command = new ApproveRefundCommand(id, data.notes);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Refund approved successfully' };
+    const { ApproveRefundCommand } = await import('../../application/commands/financial/approve-refund');
+    return this.commandBus.execute(new ApproveRefundCommand(id, data));
   }
 
   @Post('refunds/:id/reject')
@@ -141,49 +114,32 @@ export class AdminFinancialController {
   @ApiResponse({ status: 200, description: 'Refund rejected successfully' })
   @HttpCode(HttpStatus.OK)
   async rejectRefund(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement RejectRefundCommand
-    // const command = new RejectRefundCommand(id, data.reason);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Refund rejected successfully' };
+    const { RejectRefundCommand } = await import('../../application/commands/financial/reject-refund');
+    return this.commandBus.execute(new RejectRefundCommand(id, data));
   }
 
   @Get('subscriptions')
   @ApiOperation({ summary: 'Get all subscriptions' })
   @ApiResponse({ status: 200, description: 'Subscriptions retrieved successfully' })
   async getSubscriptions(@Query() query: any) {
-    // TODO: Implement GetSubscriptionsQuery
-    return {
-      items: [],
-      total: 0,
-      active: 0,
-      cancelled: 0,
-    };
+    const { GetSubscriptionsQuery } = await import('../../application/queries/financial/get-subscriptions');
+    return this.queryBus.execute(new GetSubscriptionsQuery(query));
   }
 
   @Patch('subscriptions/:id')
   @ApiOperation({ summary: 'Update subscription status' })
   @ApiResponse({ status: 200, description: 'Subscription updated successfully' })
   async updateSubscription(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateSubscriptionCommand
-    return { success: true, message: 'Subscription updated successfully' };
+    const { UpdateSubscriptionCommand } = await import('../../application/commands/financial/update-subscription');
+    return this.commandBus.execute(new UpdateSubscriptionCommand(id, data));
   }
 
   @Get('revenue-reports')
   @ApiOperation({ summary: 'Generate revenue report' })
   @ApiResponse({ status: 200, description: 'Revenue report generated successfully' })
   async getRevenueReport(@Query() query: any) {
-    // TODO: Implement GetRevenueReportQuery
-    // Support date range: query.startDate, query.endDate
-    return {
-      totalRevenue: 0,
-      platformFees: 0,
-      lawyerEarnings: 0,
-      transactionCount: 0,
-      reportPeriod: {
-        start: query.startDate,
-        end: query.endDate,
-      },
-    };
+    const { GetFinancialStatsQuery } = await import('../../application/queries/financial/get-financial-stats');
+    return this.queryBus.execute(new GetFinancialStatsQuery({ dateFrom: query.startDate, dateTo: query.endDate }));
   }
 
   @Get('payment-methods')
@@ -196,5 +152,38 @@ export class AdminFinancialController {
       mostUsed: '',
       successRates: {},
     };
+  }
+
+  @Get('commissions')
+  @ApiOperation({ summary: 'Get commission configuration' })
+  @ApiResponse({ status: 200, description: 'Commission configuration retrieved successfully' })
+  async getCommissions() {
+    const { GetCommissionsQuery } = await import('../../application/queries/financial/get-commissions');
+    return this.queryBus.execute(new GetCommissionsQuery());
+  }
+
+  @Patch('commissions')
+  @ApiOperation({ summary: 'Update commission configuration' })
+  @ApiResponse({ status: 200, description: 'Commission configuration updated successfully' })
+  @AdminRoles('super_admin')
+  async updateCommissions(@Body() data: any) {
+    const { UpdateCommissionsCommand } = await import('../../application/commands/financial/update-commissions');
+    return this.commandBus.execute(new UpdateCommissionsCommand(data));
+  }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Get financial statistics' })
+  @ApiResponse({ status: 200, description: 'Financial statistics retrieved successfully' })
+  async getFinancialStats(@Query() query: any) {
+    const { GetFinancialStatsQuery } = await import('../../application/queries/financial/get-financial-stats');
+    return this.queryBus.execute(new GetFinancialStatsQuery(query));
+  }
+
+  @Get('balance')
+  @ApiOperation({ summary: 'Get platform balance' })
+  @ApiResponse({ status: 200, description: 'Platform balance retrieved successfully' })
+  async getPlatformBalance() {
+    const { GetPlatformBalanceQuery } = await import('../../application/queries/financial/get-platform-balance');
+    return this.queryBus.execute(new GetPlatformBalanceQuery());
   }
 }
