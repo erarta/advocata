@@ -16,6 +16,42 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AdminAuthGuard } from '../../infrastructure/guards/admin-auth.guard';
 import { AdminRoles } from '../../infrastructure/decorators/admin-roles.decorator';
 
+// DTOs
+import { GetDocumentTemplatesDto } from '../dtos/content/get-document-templates.dto';
+import { CreateDocumentTemplateDto, UpdateDocumentTemplateDto } from '../dtos/content/document-template.dto';
+import { GetFaqsDto } from '../dtos/content/get-faqs.dto';
+import { CreateFaqDto, UpdateFaqDto } from '../dtos/content/faq.dto';
+import { GetLegalInfoPagesDto, CreateLegalInfoPageDto, UpdateLegalInfoPageDto } from '../dtos/content/legal-info-page.dto';
+import { GetSupportTicketsDto, AssignSupportTicketDto, ReplySupportTicketDto, UpdateSupportTicketStatusDto } from '../dtos/content/support-ticket.dto';
+import { GetOnboardingSlidesDto, CreateOnboardingSlideDto, UpdateOnboardingSlideDto } from '../dtos/content/onboarding-slide.dto';
+
+// Queries
+import { GetDocumentTemplatesQuery } from '../../application/queries/content/get-document-templates';
+import { GetDocumentTemplateQuery } from '../../application/queries/content/get-document-template';
+import { GetFaqsQuery } from '../../application/queries/content/get-faqs';
+import { GetLegalInfoPagesQuery } from '../../application/queries/content/get-legal-info-pages';
+import { GetSupportTicketsQuery } from '../../application/queries/content/get-support-tickets';
+import { GetSupportTicketQuery } from '../../application/queries/content/get-support-ticket';
+import { GetOnboardingSlidesQuery } from '../../application/queries/content/get-onboarding-slides';
+import { GetContentStatsQuery } from '../../application/queries/content/get-content-stats';
+
+// Commands
+import { CreateDocumentTemplateCommand } from '../../application/commands/content/create-document-template';
+import { UpdateDocumentTemplateCommand } from '../../application/commands/content/update-document-template';
+import { DeleteDocumentTemplateCommand } from '../../application/commands/content/delete-document-template';
+import { CreateFaqCommand } from '../../application/commands/content/create-faq';
+import { UpdateFaqCommand } from '../../application/commands/content/update-faq';
+import { DeleteFaqCommand } from '../../application/commands/content/delete-faq';
+import { CreateLegalInfoPageCommand } from '../../application/commands/content/create-legal-info-page';
+import { UpdateLegalInfoPageCommand } from '../../application/commands/content/update-legal-info-page';
+import { PublishLegalInfoPageCommand } from '../../application/commands/content/publish-legal-info-page';
+import { AssignSupportTicketCommand } from '../../application/commands/content/assign-support-ticket';
+import { ReplySupportTicketCommand } from '../../application/commands/content/reply-support-ticket';
+import { UpdateSupportTicketStatusCommand } from '../../application/commands/content/update-support-ticket-status';
+import { CreateOnboardingSlideCommand } from '../../application/commands/content/create-onboarding-slide';
+import { UpdateOnboardingSlideCommand } from '../../application/commands/content/update-onboarding-slide';
+import { DeleteOnboardingSlideCommand } from '../../application/commands/content/delete-onboarding-slide';
+
 @ApiTags('admin/content')
 @Controller('admin/content')
 @UseGuards(AdminAuthGuard)
@@ -32,31 +68,33 @@ export class AdminContentController {
   @Get('templates')
   @ApiOperation({ summary: 'Get all document templates' })
   @ApiResponse({ status: 200, description: 'Templates retrieved successfully' })
-  async getTemplates(@Query() query: any) {
-    // TODO: Implement GetTemplatesQuery
-    return {
-      items: [],
-      total: 0,
-      page: query.page || 1,
-    };
+  async getTemplates(@Query() query: GetDocumentTemplatesDto) {
+    const result = await this.queryBus.execute(new GetDocumentTemplatesQuery(query));
+    return result;
+  }
+
+  @Get('templates/:id')
+  @ApiOperation({ summary: 'Get document template by ID' })
+  @ApiResponse({ status: 200, description: 'Template retrieved successfully' })
+  async getTemplate(@Param('id') id: string) {
+    const result = await this.queryBus.execute(new GetDocumentTemplateQuery(id));
+    return result;
   }
 
   @Post('templates')
   @ApiOperation({ summary: 'Create new document template' })
   @ApiResponse({ status: 201, description: 'Template created successfully' })
-  async createTemplate(@Body() data: any) {
-    // TODO: Implement CreateTemplateCommand
-    // const command = new CreateTemplateCommand(data);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Template created successfully' };
+  async createTemplate(@Body() data: CreateDocumentTemplateDto) {
+    const result = await this.commandBus.execute(new CreateDocumentTemplateCommand(data));
+    return result;
   }
 
   @Patch('templates/:id')
   @ApiOperation({ summary: 'Update document template' })
   @ApiResponse({ status: 200, description: 'Template updated successfully' })
-  async updateTemplate(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateTemplateCommand
-    return { success: true, message: 'Template updated successfully' };
+  async updateTemplate(@Param('id') id: string, @Body() data: UpdateDocumentTemplateDto) {
+    const result = await this.commandBus.execute(new UpdateDocumentTemplateCommand(id, data));
+    return result;
   }
 
   @Delete('templates/:id')
@@ -64,8 +102,8 @@ export class AdminContentController {
   @ApiResponse({ status: 200, description: 'Template deleted successfully' })
   @HttpCode(HttpStatus.OK)
   async deleteTemplate(@Param('id') id: string) {
-    // TODO: Implement DeleteTemplateCommand
-    return { success: true, message: 'Template deleted successfully' };
+    const result = await this.commandBus.execute(new DeleteDocumentTemplateCommand(id));
+    return result;
   }
 
   // ===== FAQ MANAGEMENT =====
@@ -73,31 +111,25 @@ export class AdminContentController {
   @Get('faqs')
   @ApiOperation({ summary: 'Get all FAQs' })
   @ApiResponse({ status: 200, description: 'FAQs retrieved successfully' })
-  async getFaqs(@Query() query: any) {
-    // TODO: Implement GetFaqsQuery
-    return {
-      items: [],
-      total: 0,
-      categories: [],
-    };
+  async getFaqs(@Query() query: GetFaqsDto) {
+    const result = await this.queryBus.execute(new GetFaqsQuery(query));
+    return result;
   }
 
   @Post('faqs')
   @ApiOperation({ summary: 'Create new FAQ' })
   @ApiResponse({ status: 201, description: 'FAQ created successfully' })
-  async createFaq(@Body() data: any) {
-    // TODO: Implement CreateFaqCommand
-    // const command = new CreateFaqCommand(data.question, data.answer, data.category);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'FAQ created successfully' };
+  async createFaq(@Body() data: CreateFaqDto) {
+    const result = await this.commandBus.execute(new CreateFaqCommand(data));
+    return result;
   }
 
   @Patch('faqs/:id')
   @ApiOperation({ summary: 'Update FAQ' })
   @ApiResponse({ status: 200, description: 'FAQ updated successfully' })
-  async updateFaq(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateFaqCommand
-    return { success: true, message: 'FAQ updated successfully' };
+  async updateFaq(@Param('id') id: string, @Body() data: UpdateFaqDto) {
+    const result = await this.commandBus.execute(new UpdateFaqCommand(id, data));
+    return result;
   }
 
   @Delete('faqs/:id')
@@ -105,100 +137,43 @@ export class AdminContentController {
   @ApiResponse({ status: 200, description: 'FAQ deleted successfully' })
   @HttpCode(HttpStatus.OK)
   async deleteFaq(@Param('id') id: string) {
-    // TODO: Implement DeleteFaqCommand
-    return { success: true, message: 'FAQ deleted successfully' };
+    const result = await this.commandBus.execute(new DeleteFaqCommand(id));
+    return result;
   }
 
-  // ===== BLOG POSTS =====
+  // ===== LEGAL INFO PAGES =====
 
-  @Get('blog-posts')
-  @ApiOperation({ summary: 'Get all blog posts' })
-  @ApiResponse({ status: 200, description: 'Blog posts retrieved successfully' })
-  async getBlogPosts(@Query() query: any) {
-    // TODO: Implement GetBlogPostsQuery
-    return {
-      items: [],
-      total: 0,
-      page: query.page || 1,
-    };
+  @Get('legal-pages')
+  @ApiOperation({ summary: 'Get all legal info pages' })
+  @ApiResponse({ status: 200, description: 'Legal pages retrieved successfully' })
+  async getLegalPages(@Query() query: GetLegalInfoPagesDto) {
+    const result = await this.queryBus.execute(new GetLegalInfoPagesQuery(query));
+    return result;
   }
 
-  @Post('blog-posts')
-  @ApiOperation({ summary: 'Create new blog post' })
-  @ApiResponse({ status: 201, description: 'Blog post created successfully' })
-  async createBlogPost(@Body() data: any) {
-    // TODO: Implement CreateBlogPostCommand
-    return { success: true, message: 'Blog post created successfully' };
+  @Post('legal-pages')
+  @ApiOperation({ summary: 'Create new legal info page' })
+  @ApiResponse({ status: 201, description: 'Legal page created successfully' })
+  async createLegalPage(@Body() data: CreateLegalInfoPageDto) {
+    const result = await this.commandBus.execute(new CreateLegalInfoPageCommand(data));
+    return result;
   }
 
-  @Patch('blog-posts/:id')
-  @ApiOperation({ summary: 'Update blog post' })
-  @ApiResponse({ status: 200, description: 'Blog post updated successfully' })
-  async updateBlogPost(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateBlogPostCommand
-    return { success: true, message: 'Blog post updated successfully' };
+  @Patch('legal-pages/:id')
+  @ApiOperation({ summary: 'Update legal info page' })
+  @ApiResponse({ status: 200, description: 'Legal page updated successfully' })
+  async updateLegalPage(@Param('id') id: string, @Body() data: UpdateLegalInfoPageDto) {
+    const result = await this.commandBus.execute(new UpdateLegalInfoPageCommand(id, data));
+    return result;
   }
 
-  @Post('blog-posts/:id/publish')
-  @ApiOperation({ summary: 'Publish blog post' })
-  @ApiResponse({ status: 200, description: 'Blog post published successfully' })
+  @Post('legal-pages/:id/publish')
+  @ApiOperation({ summary: 'Publish legal info page' })
+  @ApiResponse({ status: 200, description: 'Legal page published successfully' })
   @HttpCode(HttpStatus.OK)
-  async publishBlogPost(@Param('id') id: string) {
-    // TODO: Implement PublishBlogPostCommand
-    return { success: true, message: 'Blog post published successfully' };
-  }
-
-  @Delete('blog-posts/:id')
-  @ApiOperation({ summary: 'Delete blog post' })
-  @ApiResponse({ status: 200, description: 'Blog post deleted successfully' })
-  @HttpCode(HttpStatus.OK)
-  async deleteBlogPost(@Param('id') id: string) {
-    // TODO: Implement DeleteBlogPostCommand
-    return { success: true, message: 'Blog post deleted successfully' };
-  }
-
-  // ===== NOTIFICATIONS =====
-
-  @Get('notifications')
-  @ApiOperation({ summary: 'Get system notifications' })
-  @ApiResponse({ status: 200, description: 'Notifications retrieved successfully' })
-  async getNotifications(@Query() query: any) {
-    // TODO: Implement GetNotificationsQuery
-    return {
-      items: [],
-      total: 0,
-    };
-  }
-
-  @Post('notifications')
-  @ApiOperation({ summary: 'Send system notification' })
-  @ApiResponse({ status: 201, description: 'Notification sent successfully' })
-  async sendNotification(@Body() data: any) {
-    // TODO: Implement SendNotificationCommand
-    // const command = new SendNotificationCommand(data.type, data.recipients, data.content);
-    // const result = await this.commandBus.execute(command);
-    return { success: true, message: 'Notification sent successfully' };
-  }
-
-  // ===== EMAIL TEMPLATES =====
-
-  @Get('email-templates')
-  @ApiOperation({ summary: 'Get all email templates' })
-  @ApiResponse({ status: 200, description: 'Email templates retrieved successfully' })
-  async getEmailTemplates(@Query() query: any) {
-    // TODO: Implement GetEmailTemplatesQuery
-    return {
-      items: [],
-      total: 0,
-    };
-  }
-
-  @Patch('email-templates/:id')
-  @ApiOperation({ summary: 'Update email template' })
-  @ApiResponse({ status: 200, description: 'Email template updated successfully' })
-  async updateEmailTemplate(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateEmailTemplateCommand
-    return { success: true, message: 'Email template updated successfully' };
+  async publishLegalPage(@Param('id') id: string) {
+    const result = await this.commandBus.execute(new PublishLegalInfoPageCommand(id));
+    return result;
   }
 
   // ===== SUPPORT TICKETS =====
@@ -206,30 +181,86 @@ export class AdminContentController {
   @Get('support-tickets')
   @ApiOperation({ summary: 'Get all support tickets' })
   @ApiResponse({ status: 200, description: 'Support tickets retrieved successfully' })
-  async getSupportTickets(@Query() query: any) {
-    // TODO: Implement GetSupportTicketsQuery
-    return {
-      items: [],
-      total: 0,
-      open: 0,
-      closed: 0,
-    };
+  async getSupportTickets(@Query() query: GetSupportTicketsDto) {
+    const result = await this.queryBus.execute(new GetSupportTicketsQuery(query));
+    return result;
   }
 
-  @Patch('support-tickets/:id')
-  @ApiOperation({ summary: 'Update support ticket status' })
-  @ApiResponse({ status: 200, description: 'Support ticket updated successfully' })
-  async updateSupportTicket(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement UpdateSupportTicketCommand
-    return { success: true, message: 'Support ticket updated successfully' };
+  @Get('support-tickets/:id')
+  @ApiOperation({ summary: 'Get support ticket by ID' })
+  @ApiResponse({ status: 200, description: 'Support ticket retrieved successfully' })
+  async getSupportTicket(@Param('id') id: string) {
+    const result = await this.queryBus.execute(new GetSupportTicketQuery(id));
+    return result;
+  }
+
+  @Patch('support-tickets/:id/assign')
+  @ApiOperation({ summary: 'Assign support ticket to admin' })
+  @ApiResponse({ status: 200, description: 'Support ticket assigned successfully' })
+  async assignSupportTicket(@Param('id') id: string, @Body() data: AssignSupportTicketDto) {
+    const result = await this.commandBus.execute(new AssignSupportTicketCommand(id, data));
+    return result;
   }
 
   @Post('support-tickets/:id/reply')
   @ApiOperation({ summary: 'Reply to support ticket' })
   @ApiResponse({ status: 200, description: 'Reply sent successfully' })
   @HttpCode(HttpStatus.OK)
-  async replyToTicket(@Param('id') id: string, @Body() data: any) {
-    // TODO: Implement ReplyToTicketCommand
-    return { success: true, message: 'Reply sent successfully' };
+  async replyToTicket(@Param('id') id: string, @Body() data: ReplySupportTicketDto) {
+    const result = await this.commandBus.execute(new ReplySupportTicketCommand(id, data));
+    return result;
+  }
+
+  @Patch('support-tickets/:id/status')
+  @ApiOperation({ summary: 'Update support ticket status' })
+  @ApiResponse({ status: 200, description: 'Support ticket status updated successfully' })
+  async updateTicketStatus(@Param('id') id: string, @Body() data: UpdateSupportTicketStatusDto) {
+    const result = await this.commandBus.execute(new UpdateSupportTicketStatusCommand(id, data));
+    return result;
+  }
+
+  // ===== ONBOARDING SLIDES =====
+
+  @Get('onboarding-slides')
+  @ApiOperation({ summary: 'Get all onboarding slides' })
+  @ApiResponse({ status: 200, description: 'Onboarding slides retrieved successfully' })
+  async getOnboardingSlides(@Query() query: GetOnboardingSlidesDto) {
+    const result = await this.queryBus.execute(new GetOnboardingSlidesQuery(query));
+    return result;
+  }
+
+  @Post('onboarding-slides')
+  @ApiOperation({ summary: 'Create new onboarding slide' })
+  @ApiResponse({ status: 201, description: 'Onboarding slide created successfully' })
+  async createOnboardingSlide(@Body() data: CreateOnboardingSlideDto) {
+    const result = await this.commandBus.execute(new CreateOnboardingSlideCommand(data));
+    return result;
+  }
+
+  @Patch('onboarding-slides/:id')
+  @ApiOperation({ summary: 'Update onboarding slide' })
+  @ApiResponse({ status: 200, description: 'Onboarding slide updated successfully' })
+  async updateOnboardingSlide(@Param('id') id: string, @Body() data: UpdateOnboardingSlideDto) {
+    const result = await this.commandBus.execute(new UpdateOnboardingSlideCommand(id, data));
+    return result;
+  }
+
+  @Delete('onboarding-slides/:id')
+  @ApiOperation({ summary: 'Delete onboarding slide' })
+  @ApiResponse({ status: 200, description: 'Onboarding slide deleted successfully' })
+  @HttpCode(HttpStatus.OK)
+  async deleteOnboardingSlide(@Param('id') id: string) {
+    const result = await this.commandBus.execute(new DeleteOnboardingSlideCommand(id));
+    return result;
+  }
+
+  // ===== CONTENT STATISTICS =====
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Get content statistics' })
+  @ApiResponse({ status: 200, description: 'Content statistics retrieved successfully' })
+  async getContentStats() {
+    const result = await this.queryBus.execute(new GetContentStatsQuery());
+    return result;
   }
 }

@@ -189,12 +189,70 @@ const financialCommandHandlers = [
   UpdateSubscriptionHandler,
 ];
 
+// Import Content Query Handlers
+import { GetDocumentTemplatesHandler } from './application/queries/content/get-document-templates';
+import { GetDocumentTemplateHandler } from './application/queries/content/get-document-template';
+import { GetFaqsHandler } from './application/queries/content/get-faqs';
+import { GetLegalInfoPagesHandler } from './application/queries/content/get-legal-info-pages';
+import { GetSupportTicketsHandler } from './application/queries/content/get-support-tickets';
+import { GetSupportTicketHandler } from './application/queries/content/get-support-ticket';
+import { GetOnboardingSlidesHandler } from './application/queries/content/get-onboarding-slides';
+import { GetContentStatsHandler } from './application/queries/content/get-content-stats';
+
+// Import Content Command Handlers
+import { CreateDocumentTemplateHandler } from './application/commands/content/create-document-template';
+import { UpdateDocumentTemplateHandler } from './application/commands/content/update-document-template';
+import { DeleteDocumentTemplateHandler } from './application/commands/content/delete-document-template';
+import { CreateFaqHandler } from './application/commands/content/create-faq';
+import { UpdateFaqHandler } from './application/commands/content/update-faq';
+import { DeleteFaqHandler } from './application/commands/content/delete-faq';
+import { CreateLegalInfoPageHandler } from './application/commands/content/create-legal-info-page';
+import { UpdateLegalInfoPageHandler } from './application/commands/content/update-legal-info-page';
+import { PublishLegalInfoPageHandler } from './application/commands/content/publish-legal-info-page';
+import { AssignSupportTicketHandler } from './application/commands/content/assign-support-ticket';
+import { ReplySupportTicketHandler } from './application/commands/content/reply-support-ticket';
+import { UpdateSupportTicketStatusHandler } from './application/commands/content/update-support-ticket-status';
+import { CreateOnboardingSlideHandler } from './application/commands/content/create-onboarding-slide';
+import { UpdateOnboardingSlideHandler } from './application/commands/content/update-onboarding-slide';
+import { DeleteOnboardingSlideHandler } from './application/commands/content/delete-onboarding-slide';
+
+// Content handlers
+const contentQueryHandlers = [
+  GetDocumentTemplatesHandler,
+  GetDocumentTemplateHandler,
+  GetFaqsHandler,
+  GetLegalInfoPagesHandler,
+  GetSupportTicketsHandler,
+  GetSupportTicketHandler,
+  GetOnboardingSlidesHandler,
+  GetContentStatsHandler,
+];
+
+const contentCommandHandlers = [
+  CreateDocumentTemplateHandler,
+  UpdateDocumentTemplateHandler,
+  DeleteDocumentTemplateHandler,
+  CreateFaqHandler,
+  UpdateFaqHandler,
+  DeleteFaqHandler,
+  CreateLegalInfoPageHandler,
+  UpdateLegalInfoPageHandler,
+  PublishLegalInfoPageHandler,
+  AssignSupportTicketHandler,
+  ReplySupportTicketHandler,
+  UpdateSupportTicketStatusHandler,
+  CreateOnboardingSlideHandler,
+  UpdateOnboardingSlideHandler,
+  DeleteOnboardingSlideHandler,
+];
+
 // Combine all handlers
 const commandHandlers = [
   ...userCommandHandlers,
   ...lawyerCommandHandlers,
   ...consultationCommandHandlers,
   ...financialCommandHandlers,
+  ...contentCommandHandlers,
 ];
 
 const queryHandlers = [
@@ -203,6 +261,7 @@ const queryHandlers = [
   ...consultationQueryHandlers,
   ...analyticsQueryHandlers,
   ...financialQueryHandlers,
+  ...contentQueryHandlers,
 ];
 
 @Module({
