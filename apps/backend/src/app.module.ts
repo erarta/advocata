@@ -4,6 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 
+// Shared Infrastructure
+import { CacheModule } from './shared/infrastructure/cache';
+import { QueueModule } from './shared/infrastructure/queue/queue.module';
+
 // Bounded Context Modules
 import { IdentityModule } from './modules/identity/identity.module';
 import { LawyerModule } from './modules/lawyer/lawyer.module';
@@ -12,7 +16,7 @@ import { ConsultationModule } from './modules/consultation/consultation.module';
 import { MessageModule } from './modules/message/message.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AdminModule } from './modules/admin/admin.module';
-// import { NotificationModule } from './modules/notification/notification.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -47,6 +51,12 @@ import { AdminModule } from './modules/admin/admin.module';
       },
     }),
 
+    // Cache Module (Global)
+    CacheModule,
+
+    // Queue Module (Global)
+    QueueModule,
+
     // Bounded Context Modules
     IdentityModule,
     LawyerModule,
@@ -55,7 +65,7 @@ import { AdminModule } from './modules/admin/admin.module';
     MessageModule,
     PaymentModule,
     AdminModule,
-    // NotificationModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],

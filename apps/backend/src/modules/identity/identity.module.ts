@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserOrmEntity } from './infrastructure/persistence/user.orm-entity';
 import { UserRepository } from './infrastructure/persistence/user.repository';
 import { OtpService } from './infrastructure/services/otp.service';
+import { NotificationModule } from '../notification/notification.module';
 
 // Application - Command Handlers
 import { RegisterUserCommandHandler } from './application/commands/register-user';
@@ -47,6 +48,7 @@ const services = [
     CqrsModule,
     ConfigModule,
     TypeOrmModule.forFeature([UserOrmEntity]),
+    forwardRef(() => NotificationModule),
   ],
   controllers: [AuthController, UserController],
   providers: [

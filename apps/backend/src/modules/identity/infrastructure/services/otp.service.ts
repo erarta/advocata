@@ -1,13 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IOtpService } from '../../domain/services/otp.service.interface';
 import Redis from 'ioredis';
+import { NotificationService } from '@/modules/notification/application/services/notification.service';
 
 /**
  * OtpService
  *
  * Manages OTP (One-Time Password) generation, storage, and verification
- * Uses Redis for storage and Twilio for SMS delivery
+ * Uses Redis for storage and Twilio for SMS delivery via NotificationService
  */
 @Injectable()
 export class OtpService implements IOtpService {
@@ -16,7 +17,11 @@ export class OtpService implements IOtpService {
   private readonly otpExpiration = 5 * 60; // 5 minutes in seconds
   private readonly otpLength = 6;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(forwardRef(() => NotificationService))
+    private readonly notificationService: NotificationService,
+  ) {
     this.redis = new Redis({
       host: this.configService.get('REDIS_HOST', 'localhost'),
       port: this.configService.get('REDIS_PORT', 6379),
@@ -32,17 +37,17 @@ export class OtpService implements IOtpService {
     const key = this.getRedisKey(phoneNumber);
     await this.redis.setex(key, this.otpExpiration, code);
 
-    // TODO: Send SMS via Twilio
-    // For now, just log it (in production, this should be removed)
-    this.logger.log(`OTP for ${phoneNumber}: ${code}`);
+    // Send SMS via NotificationService (Twilio)
+    await this.sendSms(phoneNumber, code);
 
-    // In development, you might want to always return the code
-    // In production, this should not return the actual code
+    // In development, log the code for testing
     if (this.configService.get('NODE_ENV') === 'development') {
-      return code;
+      this.logger.log(`OTP for ${phoneNumber}: ${code}`);
+      return code; // Return code in development for testing
     }
 
-    return code; // For testing purposes
+    // In production, don't return the actual code (it's sent via SMS)
+    return 'sent';
   }
 
   async verify(phoneNumber: string, code: string): Promise<boolean> {
@@ -101,16 +106,29 @@ export class OtpService implements IOtpService {
   }
 
   /**
-   * Send SMS via Twilio (to be implemented)
+   * Send SMS via NotificationService (Twilio)
    */
   private async sendSms(phoneNumber: string, code: string): Promise<void> {
-    // TODO: Implement Twilio integration
-    // const twilioClient = require('twilio')(accountSid, authToken);
-    // await twilioClient.messages.create({
-    //   body: `Your Advocata verification code is: ${code}`,
-    //   from: this.configService.get('TWILIO_PHONE_NUMBER'),
-    //   to: phoneNumber,
-    // });
-    this.logger.log(`SMS would be sent to ${phoneNumber}: ${code}`);
+    try {
+      const result = await this.notificationService.sendOtp(phoneNumber, code);
+
+      if (result.isFailure) {
+        this.logger.error('Failed to send OTP SMS', {
+          phoneNumber,
+          error: result.error,
+        });
+        // In production, you might want to throw an error here
+        // For now, we'll just log it and continue
+      } else {
+        this.logger.log(`OTP SMS queued for sending to ${phoneNumber}`);
+      }
+    } catch (error) {
+      this.logger.error('Error sending OTP SMS', {
+        phoneNumber,
+        error: error.message,
+        stack: error.stack,
+      });
+      // Don't throw - allow OTP to be stored even if SMS fails
+    }
   }
 }

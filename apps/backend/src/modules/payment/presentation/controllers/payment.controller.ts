@@ -7,6 +7,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseInterceptors,
   Delete,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -17,6 +18,12 @@ import {
   ApiQuery,
   ApiParam,
 } from '@nestjs/swagger';
+import {
+  CacheInterceptor,
+  CacheKey,
+  CacheTTL,
+  CacheInvalidate,
+} from '../../../../shared/infrastructure/cache';
 import { CreatePaymentCommand } from '../../application/commands/create-payment/create-payment.command';
 import { CapturePaymentCommand } from '../../application/commands/capture-payment/capture-payment.command';
 import { CancelPaymentCommand } from '../../application/commands/cancel-payment/cancel-payment.command';
@@ -39,6 +46,7 @@ import { PaymentStatus } from '../../domain/value-objects/payment-status.vo';
  */
 @ApiTags('payments')
 @Controller('api/v1/payments')
+@UseInterceptors(CacheInterceptor)
 export class PaymentController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -62,6 +70,7 @@ export class PaymentController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid payment data',
   })
+  @CacheInvalidate((req) => [`payments:user:${req.body.userId}:*`])
   async createPayment(
     @Body() dto: CreatePaymentRequestDto,
   ): Promise<PaymentResponseDto> {
@@ -111,6 +120,8 @@ export class PaymentController {
     status: HttpStatus.FORBIDDEN,
     description: 'Access denied',
   })
+  @CacheKey((req) => `payment:${req.params.id}`)
+  @CacheTTL(600) // 10 minutes - payments are immutable
   async getPayment(
     @Param('id') id: string,
     @Query('userId') userId?: string,
@@ -156,6 +167,8 @@ export class PaymentController {
     description: 'Payments retrieved successfully',
     type: PaginatedPaymentsResponseDto,
   })
+  @CacheKey((req) => `payments:user:${req.params.userId}:${JSON.stringify(req.query)}`)
+  @CacheTTL(180) // 3 minutes
   async getUserPayments(
     @Param('userId') userId: string,
     @Query('status') status?: PaymentStatus,
@@ -197,6 +210,10 @@ export class PaymentController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Payment cannot be captured in current status',
   })
+  @CacheInvalidate((req) => [
+    `payment:${req.params.id}`,
+    'payments:user:*',
+  ])
   async capturePayment(@Param('id') id: string): Promise<any> {
     const command = new CapturePaymentCommand(id);
 
@@ -228,6 +245,10 @@ export class PaymentController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Payment cannot be canceled in current status',
   })
+  @CacheInvalidate((req) => [
+    `payment:${req.params.id}`,
+    'payments:user:*',
+  ])
   async cancelPayment(@Param('id') id: string): Promise<any> {
     const command = new CancelPaymentCommand(id);
 
@@ -259,6 +280,10 @@ export class PaymentController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Payment cannot be refunded in current status',
   })
+  @CacheInvalidate((req) => [
+    `payment:${req.params.id}`,
+    'payments:user:*',
+  ])
   async refundPayment(
     @Param('id') id: string,
     @Body() dto: RefundPaymentRequestDto,

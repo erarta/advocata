@@ -1,11 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProcessPayoutCommand } from './process-payout.command';
 import { LawyerOrmEntity } from '../../../../../lawyer/infrastructure/persistence/lawyer.orm-entity';
 import { PaymentOrmEntity } from '../../../../../payment/infrastructure/persistence/payment.orm-entity';
 import { ConsultationOrmEntity } from '../../../../../consultation/infrastructure/persistence/consultation.orm-entity';
+import { PayoutRepository } from '../../../../infrastructure/persistence/payout.repository';
+import { PayoutOrmEntity, PayoutStatus } from '../../../../infrastructure/persistence/payout.orm-entity';
+import { AuditLogService } from '../../../services/audit-log.service';
 
 interface ProcessPayoutResult {
   success: boolean;
@@ -17,6 +20,7 @@ interface ProcessPayoutResult {
 @CommandHandler(ProcessPayoutCommand)
 export class ProcessPayoutHandler implements ICommandHandler<ProcessPayoutCommand> {
   private static readonly PLATFORM_COMMISSION = 0.10;
+  private readonly logger = new Logger(ProcessPayoutHandler.name);
 
   constructor(
     @InjectRepository(LawyerOrmEntity)
@@ -25,6 +29,8 @@ export class ProcessPayoutHandler implements ICommandHandler<ProcessPayoutComman
     private readonly paymentRepository: Repository<PaymentOrmEntity>,
     @InjectRepository(ConsultationOrmEntity)
     private readonly consultationRepository: Repository<ConsultationOrmEntity>,
+    private readonly payoutRepository: PayoutRepository,
+    private readonly auditLogService: AuditLogService,
   ) {}
 
   async execute(command: ProcessPayoutCommand): Promise<ProcessPayoutResult> {
@@ -70,8 +76,8 @@ export class ProcessPayoutHandler implements ICommandHandler<ProcessPayoutComman
     const platformCommission = totalRevenue * ProcessPayoutHandler.PLATFORM_COMMISSION;
     const lawyerEarnings = totalRevenue - platformCommission;
 
-    // TODO: Subtract already paid amount from payout records
-    const alreadyPaid = 0;
+    // Subtract already paid amount from payout records
+    const alreadyPaid = await this.payoutRepository.getTotalPaidToLawyer(lawyerId);
     const pendingAmount = lawyerEarnings - alreadyPaid;
 
     // 3. Validate amount
@@ -79,29 +85,54 @@ export class ProcessPayoutHandler implements ICommandHandler<ProcessPayoutComman
       throw new BadRequestException('No pending earnings to payout');
     }
 
-    // TODO: Validate maximum payout amount (e.g., not more than pending)
+    if (dto.amount && dto.amount > pendingAmount) {
+      throw new BadRequestException(`Cannot payout more than pending amount (${pendingAmount} RUB)`);
+    }
 
-    // 4. Process payout
-    // TODO: Integrate with payment gateway (ЮКасса) for actual payout
-    // TODO: Create payout record in database
-    // TODO: Update lawyer's earnings_paid field
-    // TODO: Send notification to lawyer
+    const payoutAmount = dto.amount || pendingAmount;
 
-    const payoutId = `payout_${Date.now()}_${lawyerId}`;
+    // 4. Create payout record in database
+    const payoutId = await this.payoutRepository.nextId();
 
-    // For now, log the payout (will be replaced with actual processing)
-    console.log(`[PAYOUT] Processing payout for lawyer ${lawyerId}`, {
+    const payout = new PayoutOrmEntity();
+    payout.id = payoutId;
+    payout.lawyerId = lawyerId;
+    payout.amount = payoutAmount;
+    payout.currency = 'RUB';
+    payout.status = PayoutStatus.PROCESSING;
+    payout.method = dto.method as any;
+    payout.notes = dto.notes;
+    payout.processedBy = dto.adminUserId; // TODO: Get from request context
+    payout.processedAt = new Date();
+    payout.metadata = {
+      totalRevenue,
+      platformCommission,
+      lawyerEarnings,
+      alreadyPaid,
+      pendingAmount,
+    };
+
+    await this.payoutRepository.save(payout);
+
+    // Log audit trail
+    await this.auditLogService.logPayoutProcessing(
+      dto.adminUserId || 'system',
       payoutId,
-      amount: pendingAmount,
-      method: dto.method,
-      notes: dto.notes,
-    });
+      payoutAmount,
+      lawyerId,
+      dto.method,
+    );
+
+    this.logger.log(`Payout ${payoutId} created for lawyer ${lawyerId}: ${payoutAmount} RUB via ${dto.method}`);
+
+    // TODO: Integrate with payment gateway (ЮКасса) for actual payout
+    // TODO: Send notification to lawyer
 
     return {
       success: true,
       payoutId,
-      amount: pendingAmount,
-      message: `Payout of ${pendingAmount} RUB processed successfully via ${dto.method}`,
+      amount: payoutAmount,
+      message: `Payout of ${payoutAmount} RUB processed successfully via ${dto.method}`,
     };
   }
 }
