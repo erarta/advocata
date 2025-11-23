@@ -21,6 +21,7 @@ export class DocumentMapper {
       processedAt: ormEntity.processedAt,
       errorMessage: ormEntity.errorMessage,
       chunkCount: ormEntity.chunkCount,
+      downloadCount: ormEntity.downloadCount || 0,
       createdAt: ormEntity.createdAt,
       updatedAt: ormEntity.updatedAt,
     };
@@ -44,6 +45,7 @@ export class DocumentMapper {
       _processedAt: { value: props.processedAt, writable: true },
       _errorMessage: { value: props.errorMessage, writable: true },
       _chunkCount: { value: props.chunkCount, writable: true },
+      _downloadCount: { value: props.downloadCount, writable: true },
       _createdAt: { value: props.createdAt, writable: true },
       _updatedAt: { value: props.updatedAt, writable: true },
     });
@@ -69,6 +71,7 @@ export class DocumentMapper {
     ormEntity.processedAt = document.processedAt;
     ormEntity.errorMessage = document.errorMessage;
     ormEntity.chunkCount = document.chunkCount;
+    ormEntity.downloadCount = document.downloadCount;
     ormEntity.createdAt = document.createdAt;
     ormEntity.updatedAt = document.updatedAt;
 

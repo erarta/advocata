@@ -5,6 +5,7 @@ import 'package:advocata/features/consultation/domain/entities/consultation_enti
 import 'package:advocata/features/consultation/presentation/providers/consultation_state.dart';
 import 'package:advocata/features/consultation/presentation/providers/consultation_notifier.dart';
 import 'package:advocata/features/consultation/presentation/widgets/consultation_card.dart';
+import 'package:advocata/features/consultation/presentation/widgets/rate_consultation_dialog.dart';
 import 'package:advocata/core/presentation/widgets/common/loading_indicator.dart';
 import 'package:advocata/core/presentation/widgets/common/empty_state.dart';
 import 'package:advocata/core/presentation/widgets/common/error_state.dart';
@@ -117,6 +118,14 @@ class _ConsultationHistoryScreenState
         return ConsultationCard(
           consultation: consultation,
           onTap: () => _onConsultationTap(consultation),
+          onRate: consultation.status == 'completed' && consultation.rating == null
+              ? () => _showRatingDialog(consultation)
+              : null,
+          onChat: (consultation.status == 'active' ||
+                  consultation.status == 'confirmed' ||
+                  consultation.status == 'completed')
+              ? () => _openChat(consultation)
+              : null,
         );
       },
     );
@@ -171,5 +180,33 @@ class _ConsultationHistoryScreenState
   /// Handle consultation tap
   void _onConsultationTap(ConsultationEntity consultation) {
     context.push('/consultations/${consultation.id}');
+  }
+
+  /// Show rating dialog
+  void _showRatingDialog(ConsultationEntity consultation) {
+    showDialog(
+      context: context,
+      builder: (context) => RateConsultationDialog(
+        consultationId: consultation.id,
+        lawyerName: 'Юрист', // TODO: Get lawyer name from consultation
+      ),
+    ).then((rated) {
+      if (rated == true) {
+        // Refresh list after rating
+        _onRefresh();
+      }
+    });
+  }
+
+  /// Open chat for consultation
+  void _openChat(ConsultationEntity consultation) {
+    context.push(
+      '/consultations/${consultation.id}/chat',
+      extra: {
+        'consultationId': consultation.id,
+        'lawyerName': 'Юрист', // TODO: Get lawyer name from consultation
+        'lawyerAvatar': null, // TODO: Get lawyer avatar from consultation
+      },
+    );
   }
 }

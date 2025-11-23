@@ -26,8 +26,11 @@ import {
 } from '@nestjs/swagger';
 import { UploadDocumentCommand } from '../../application/commands/upload-document';
 import { DeleteDocumentCommand } from '../../application/commands/delete-document';
+import { TrackDownloadCommand } from '../../application/commands/track-download';
 import { SearchDocumentsQuery } from '../../application/queries/search-documents';
 import { GetDocumentQuery } from '../../application/queries/get-document';
+import { GetCategoriesQuery } from '../../application/queries/get-categories';
+import { GetPopularTemplatesQuery } from '../../application/queries/get-popular-templates';
 import { UploadDocumentDto } from '../dtos/upload-document.dto';
 import { SearchDocumentsDto } from '../dtos/search-documents.dto';
 import {
@@ -35,6 +38,7 @@ import {
   SearchDocumentsResponseDto,
   UploadDocumentResponseDto,
 } from '../dtos/document-response.dto';
+import { GetCategoriesResponseDto } from '../dtos/category-response.dto';
 import { JwtAuthGuard } from '../../../identity/presentation/guards/jwt-auth.guard';
 import { DocumentType } from '../../domain/entities/document.entity';
 
@@ -220,6 +224,67 @@ export class DocumentController {
       chunkCount: document.chunkCount,
       processedAt: document.processedAt,
       errorMessage: document.errorMessage,
+    };
+  }
+
+  // ===== TEMPLATE ENDPOINTS =====
+
+  @Get('templates/categories')
+  @ApiOperation({ summary: 'Get all document categories with counts' })
+  @ApiResponse({
+    status: 200,
+    description: 'Categories retrieved successfully',
+    type: GetCategoriesResponseDto,
+  })
+  async getCategories(): Promise<GetCategoriesResponseDto> {
+    const query = new GetCategoriesQuery(true); // Only public documents
+    const result = await this.queryBus.execute(query);
+
+    return {
+      categories: result.categories,
+    };
+  }
+
+  @Get('templates/popular')
+  @ApiOperation({ summary: 'Get popular templates (most downloaded)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Popular templates retrieved successfully',
+    type: SearchDocumentsResponseDto,
+  })
+  async getPopularTemplates(
+    @Query('limit') limit: number = 10,
+    @Query('category') category?: string,
+  ) {
+    const query = new GetPopularTemplatesQuery(limit, category);
+    const result = await this.queryBus.execute(query);
+
+    return {
+      templates: result.templates.map((doc) => DocumentResponseDto.fromDomain(doc)),
+    };
+  }
+
+  @Post(':id/track-download')
+  @ApiOperation({ summary: 'Track document download (increments download count)' })
+  @ApiResponse({ status: 200, description: 'Download tracked successfully' })
+  @ApiResponse({ status: 403, description: 'Access denied' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  @HttpCode(HttpStatus.OK)
+  async trackDownload(
+    @Request() req,
+    @Param('id') id: string,
+  ): Promise<{ message: string }> {
+    const userId = req.user.userId;
+
+    const command = new TrackDownloadCommand(id, userId);
+    const result = await this.commandBus.execute(command);
+
+    if (result.isFailure) {
+      throw new BadRequestException(result.error);
+    }
+
+    return {
+      message: 'Download tracked successfully',
     };
   }
 }

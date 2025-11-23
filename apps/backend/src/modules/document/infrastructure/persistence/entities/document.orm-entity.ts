@@ -77,6 +77,10 @@ export class DocumentOrmEntity {
   @Column({ type: 'int', nullable: true })
   chunkCount: number;
 
+  @Column({ type: 'int', default: 0 })
+  @Index()
+  downloadCount: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

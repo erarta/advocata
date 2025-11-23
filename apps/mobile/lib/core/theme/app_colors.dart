@@ -15,6 +15,10 @@ class AppColors {
   static const Color secondary = Color(0xFFF093FB);
   static const Color secondaryDark = Color(0xFFF5576C);
 
+  // Coral/Salmon Colors
+  static const Color coral = Color(0xFFFF9A8B);
+  static const Color salmon = Color(0xFFFFA07A);
+
   // Neutral Colors
   static const Color black = Color(0xFF000000);
   static const Color white = Color(0xFFFFFFFF);
@@ -61,6 +65,12 @@ class AppColors {
     end: Alignment(0.0, 1.0),
     colors: [primary, primaryDark],
     stops: [0.0, 1.0],
+  );
+
+  static const LinearGradient coralGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [coral, salmon],
   );
 
   // Shadow Colors

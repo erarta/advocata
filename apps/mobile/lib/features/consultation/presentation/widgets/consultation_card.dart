@@ -7,11 +7,15 @@ import 'package:intl/intl.dart';
 class ConsultationCard extends StatelessWidget {
   final ConsultationEntity consultation;
   final VoidCallback? onTap;
+  final VoidCallback? onRate;
+  final VoidCallback? onChat;
 
   const ConsultationCard({
     super.key,
     required this.consultation,
     this.onTap,
+    this.onRate,
+    this.onChat,
   });
 
   @override
@@ -79,10 +83,47 @@ class ConsultationCard extends StatelessWidget {
                 value: '${consultation.price.toStringAsFixed(0)} ${consultation.currency}',
               ),
 
+              // Chat button (for active and completed consultations)
+              if ((consultation.status == 'active' ||
+                   consultation.status == 'confirmed' ||
+                   consultation.status == 'completed') &&
+                  onChat != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onChat,
+                    icon: const Icon(Icons.chat, size: 18),
+                    label: const Text('Открыть чат'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+
               // Rating (if completed and rated)
               if (consultation.rating != null) ...[
                 const SizedBox(height: 8),
                 _buildRating(consultation.rating!),
+              ],
+
+              // Rate button (if completed and not rated)
+              if (consultation.status == 'completed' && consultation.rating == null && onRate != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: onRate,
+                    icon: const Icon(Icons.star_outline, size: 18),
+                    label: const Text('Оценить консультацию'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.amber.shade700,
+                      side: BorderSide(color: Colors.amber.shade700),
+                    ),
+                  ),
+                ),
               ],
 
               // Created date

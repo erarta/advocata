@@ -111,6 +111,52 @@ export class DocumentRepositoryImpl implements DocumentRepository {
     await this.documentRepository.delete({ id });
   }
 
+  // Template operations
+  async getCategoryCounts(
+    onlyPublic: boolean,
+  ): Promise<Record<string, number>> {
+    const queryBuilder = this.documentRepository.createQueryBuilder('document');
+
+    if (onlyPublic) {
+      queryBuilder.where('document.isPublic = :isPublic', { isPublic: true });
+    }
+
+    queryBuilder
+      .select('document.category', 'category')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('document.category');
+
+    const results = await queryBuilder.getRawMany();
+
+    const counts: Record<string, number> = {};
+    for (const result of results) {
+      counts[result.category] = parseInt(result.count);
+    }
+
+    return counts;
+  }
+
+  async getPopular(limit: number, category?: string): Promise<Document[]> {
+    const queryBuilder = this.documentRepository.createQueryBuilder('document');
+
+    // Only public documents
+    queryBuilder.where('document.isPublic = :isPublic', { isPublic: true });
+
+    // Filter by category if provided
+    if (category) {
+      queryBuilder.andWhere('document.category = :category', { category });
+    }
+
+    // Order by download count descending
+    queryBuilder
+      .orderBy('document.downloadCount', 'DESC')
+      .addOrderBy('document.createdAt', 'DESC')
+      .take(limit);
+
+    const ormEntities = await queryBuilder.getMany();
+    return ormEntities.map((entity) => DocumentMapper.toDomain(entity));
+  }
+
   // Chunk operations
   async saveChunk(chunk: DocumentChunk): Promise<void> {
     const ormEntity = DocumentChunkMapper.toOrmEntity(chunk);
