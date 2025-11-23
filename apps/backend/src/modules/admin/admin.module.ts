@@ -85,6 +85,29 @@ import { MessageOrmEntity } from '../message/infrastructure/persistence/message.
 import { EmergencyCallOrmEntity } from '../emergency-call/infrastructure/persistence/emergency-call.orm-entity';
 import { PaymentOrmEntity } from '../payment/infrastructure/persistence/payment.orm-entity';
 
+// Import Admin ORM Entities
+import { PayoutOrmEntity } from './infrastructure/persistence/payout.orm-entity';
+import { RefundOrmEntity } from './infrastructure/persistence/refund.orm-entity';
+import { SubscriptionOrmEntity } from './infrastructure/persistence/subscription.orm-entity';
+import { AuditLogOrmEntity } from './infrastructure/persistence/audit-log.orm-entity';
+import { SupportTicketOrmEntity } from './infrastructure/persistence/support-ticket.orm-entity';
+import { LegalPageOrmEntity } from './infrastructure/persistence/legal-page.orm-entity';
+import { FaqOrmEntity } from './infrastructure/persistence/faq.orm-entity';
+import { PlatformConfigOrmEntity } from './infrastructure/persistence/platform-config.orm-entity';
+import { FeatureFlagOrmEntity } from './infrastructure/persistence/feature-flag.orm-entity';
+
+// Import Admin Repositories
+import { PayoutRepository } from './infrastructure/persistence/payout.repository';
+import { RefundRepository } from './infrastructure/persistence/refund.repository';
+import { SubscriptionRepository } from './infrastructure/persistence/subscription.repository';
+import { AuditLogRepository } from './infrastructure/persistence/audit-log.repository';
+import { SupportTicketRepository } from './infrastructure/persistence/support-ticket.repository';
+import { LegalPageRepository } from './infrastructure/persistence/legal-page.repository';
+import { FaqRepository } from './infrastructure/persistence/faq.repository';
+
+// Import Admin Services
+import { AuditLogService } from './application/services/audit-log.service';
+
 // User handlers
 const userQueryHandlers = [
   GetUsersHandler,
@@ -324,12 +347,23 @@ const queryHandlers = [
     CqrsModule,
     // TypeORM entities for query/command handlers
     TypeOrmModule.forFeature([
+      // Existing entities
       UserOrmEntity,
       LawyerOrmEntity,
       ConsultationOrmEntity,
       MessageOrmEntity,
       EmergencyCallOrmEntity,
       PaymentOrmEntity,
+      // Admin entities
+      PayoutOrmEntity,
+      RefundOrmEntity,
+      SubscriptionOrmEntity,
+      AuditLogOrmEntity,
+      SupportTicketOrmEntity,
+      LegalPageOrmEntity,
+      FaqOrmEntity,
+      PlatformConfigOrmEntity,
+      FeatureFlagOrmEntity,
     ]),
     // Import existing modules to reuse their services and repositories
     IdentityModule,
@@ -353,6 +387,18 @@ const queryHandlers = [
     // Guards
     AdminAuthGuard,
 
+    // Repositories
+    PayoutRepository,
+    RefundRepository,
+    SubscriptionRepository,
+    AuditLogRepository,
+    SupportTicketRepository,
+    LegalPageRepository,
+    FaqRepository,
+
+    // Services
+    AuditLogService,
+
     // Command handlers
     ...commandHandlers,
 
@@ -362,6 +408,14 @@ const queryHandlers = [
   exports: [
     // Export guard for use in other modules if needed
     AdminAuthGuard,
+    // Export services for use in other modules
+    AuditLogService,
+    // Export repositories
+    PayoutRepository,
+    RefundRepository,
+    SubscriptionRepository,
+    AuditLogRepository,
+    SupportTicketRepository,
   ],
 })
 export class AdminModule {}

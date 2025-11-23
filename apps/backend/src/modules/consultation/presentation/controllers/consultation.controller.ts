@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  UseInterceptors,
   Request,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -18,6 +19,13 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
+import {
+  CacheInterceptor,
+  CacheKey,
+  CacheTTL,
+  CacheInvalidate,
+  NoCache,
+} from '../../../../shared/infrastructure/cache';
 import { BookConsultationCommand } from '../../application/commands/book-consultation/book-consultation.command';
 import { ConfirmConsultationCommand } from '../../application/commands/confirm-consultation/confirm-consultation.command';
 import { StartConsultationCommand } from '../../application/commands/start-consultation/start-consultation.command';
@@ -42,6 +50,7 @@ import { ConsultationStatus } from '../../domain/enums';
 @ApiTags('consultations')
 @Controller('api/v1/consultations')
 @ApiBearerAuth()
+@UseInterceptors(CacheInterceptor)
 // @UseGuards(JwtAuthGuard) // TODO: Uncomment when auth is implemented
 export class ConsultationController {
   constructor(
@@ -61,6 +70,11 @@ export class ConsultationController {
     description: 'Consultation successfully booked',
     type: ConsultationResponseDto,
   })
+  @CacheInvalidate((req) => [
+    `consultations:user:${req.body.clientId}`,
+    `consultations:lawyer:${req.body.lawyerId}`,
+    'consultations:list:*',
+  ])
   async bookConsultation(
     @Body() dto: BookConsultationRequestDto,
   ): Promise<ConsultationResponseDto> {
@@ -105,6 +119,8 @@ export class ConsultationController {
     status: HttpStatus.OK,
     description: 'User consultations',
   })
+  @CacheKey((req) => `consultations:list:user:${req.query.userId || 'temp'}`)
+  @CacheTTL(120) // 2 minutes
   async getUserConsultations(
     @Query('status') status?: ConsultationStatus,
     @Query('limit') limit?: number,
@@ -153,6 +169,8 @@ export class ConsultationController {
     status: HttpStatus.OK,
     description: 'Lawyer consultations',
   })
+  @CacheKey((req) => `consultations:list:lawyer:${req.params.lawyerId}`)
+  @CacheTTL(120) // 2 minutes
   async getLawyerConsultations(
     @Param('lawyerId') lawyerId: string,
     @Query('status') status?: ConsultationStatus,
@@ -187,6 +205,7 @@ export class ConsultationController {
     description: 'Active consultation or null',
     type: ConsultationResponseDto,
   })
+  @NoCache() // Real-time data should not be cached
   async getActiveConsultation(
     @Query('isLawyer') isLawyer?: boolean,
     // @Request() req, // TODO: Get userId from JWT token
@@ -211,6 +230,8 @@ export class ConsultationController {
     description: 'Consultation found',
     type: ConsultationResponseDto,
   })
+  @CacheKey((req) => `consultation:${req.params.id}`)
+  @CacheTTL(300) // 5 minutes
   async getConsultationById(
     @Param('id') id: string,
     // @Request() req, // TODO: Get userId from JWT token
@@ -234,6 +255,10 @@ export class ConsultationController {
     status: HttpStatus.OK,
     description: 'Consultation confirmed',
   })
+  @CacheInvalidate((req) => [
+    `consultation:${req.params.id}`,
+    'consultations:list:*',
+  ])
   async confirmConsultation(
     @Param('id') id: string,
     // @Request() req, // TODO: Get lawyerId from JWT token
@@ -257,6 +282,10 @@ export class ConsultationController {
     status: HttpStatus.OK,
     description: 'Consultation started',
   })
+  @CacheInvalidate((req) => [
+    `consultation:${req.params.id}`,
+    'consultations:list:*',
+  ])
   async startConsultation(
     @Param('id') id: string,
     // @Request() req, // TODO: Get userId from JWT token
@@ -280,6 +309,10 @@ export class ConsultationController {
     status: HttpStatus.OK,
     description: 'Consultation completed',
   })
+  @CacheInvalidate((req) => [
+    `consultation:${req.params.id}`,
+    'consultations:list:*',
+  ])
   async completeConsultation(
     @Param('id') id: string,
     // @Request() req, // TODO: Get userId from JWT token
@@ -303,6 +336,10 @@ export class ConsultationController {
     status: HttpStatus.OK,
     description: 'Consultation cancelled',
   })
+  @CacheInvalidate((req) => [
+    `consultation:${req.params.id}`,
+    'consultations:list:*',
+  ])
   async cancelConsultation(
     @Param('id') id: string,
     @Body() dto: CancelConsultationRequestDto,

@@ -9,7 +9,7 @@ config();
  *
  * This config is used by TypeORM CLI for running migrations
  */
-export const AppDataSource = new DataSource({
+const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432'),
@@ -18,7 +18,10 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE || 'advocata',
 
   // Entity patterns
-  entities: ['src/**/*.orm-entity.ts'],
+  entities: [
+    'src/**/*.entity.ts',
+    'src/**/*.orm-entity.ts'
+  ],
 
   // Migration settings
   migrations: ['src/database/migrations/*.ts'],

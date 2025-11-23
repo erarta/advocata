@@ -9,6 +9,7 @@ import {
   HttpStatus,
   BadRequestException,
   NotFoundException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -22,6 +23,12 @@ import { RegisterLawyerCommand } from '../../application/commands/register-lawye
 import { SearchLawyersQuery } from '../../application/queries/search-lawyers/search-lawyers.query';
 import { RegisterLawyerRequestDto } from '../dtos/register-lawyer.request.dto';
 import { SearchLawyersRequestDto } from '../dtos/search-lawyers.request.dto';
+import {
+  CacheInterceptor,
+  CacheKey,
+  CacheTTL,
+  CacheInvalidate,
+} from '../../../../shared/infrastructure/cache';
 
 /**
  * LawyerController
@@ -30,6 +37,7 @@ import { SearchLawyersRequestDto } from '../dtos/search-lawyers.request.dto';
  */
 @ApiTags('lawyers')
 @Controller('lawyers')
+@UseInterceptors(CacheInterceptor)
 export class LawyerController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -44,6 +52,7 @@ export class LawyerController {
     description: 'Lawyer successfully registered',
   })
   @ApiBadRequestResponse({ description: 'Invalid input' })
+  @CacheInvalidate(['lawyers:search:*', 'lawyers:all'])
   async register(@Body() dto: RegisterLawyerRequestDto) {
     const command = new RegisterLawyerCommand(
       dto.userId,
@@ -71,6 +80,8 @@ export class LawyerController {
     status: HttpStatus.OK,
     description: 'Lawyers found',
   })
+  @CacheKey((req) => `lawyers:search:${JSON.stringify(req.query)}`)
+  @CacheTTL(300) // 5 minutes
   async search(@Query() dto: SearchLawyersRequestDto) {
     const query = new SearchLawyersQuery(
       dto.specializations,
@@ -91,6 +102,8 @@ export class LawyerController {
     status: HttpStatus.OK,
     description: 'Lawyer found',
   })
+  @CacheKey((req) => `lawyer:${req.params.id}`)
+  @CacheTTL(600) // 10 minutes
   async getById(@Param('id') id: string) {
     // Simplified - would use GetLawyerByIdQuery
     return { message: 'Get lawyer by ID - to be implemented' };
